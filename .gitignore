@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Generated Xcode container app + extension (build artifact — regenerate with the
+# safari-web-extension-converter; `extension/` is the canonical source of truth).
+/Map Path/
+*.xcodeproj
+*.xcworkspace
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+
+# Node / tooling (icon pipeline, if used locally)
+node_modules/
