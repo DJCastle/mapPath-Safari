@@ -6,10 +6,13 @@
 # Canonical sources:
 #   container-app/Resources/         — Main.html, Script.js, Style.css
 #   app-icon/MapPath.icon/           — single-layer Icon Composer source
+#   PrivacyInfo.xcprivacy            — App Store privacy manifest (shared by both targets)
 #
 # Targets in the Xcode tree:
 #   Map Path/Shared (App)/Resources/
 #   Map Path/Shared (App)/Assets.xcassets/AppIcon.icon/
+#   Map Path/Shared (App)/PrivacyInfo.xcprivacy
+#   Map Path/Shared (Extension)/PrivacyInfo.xcprivacy
 #
 # Defaults to dry-run. Use --apply to actually write.
 
@@ -40,10 +43,12 @@ done
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 XCODE_APP_DIR="$REPO_ROOT/Map Path/Shared (App)"
+XCODE_EXT_DIR="$REPO_ROOT/Map Path/Shared (Extension)"
 XCODE_RESOURCES="$XCODE_APP_DIR/Resources"
 XCODE_CATALOG="$XCODE_APP_DIR/Assets.xcassets"
 ICON_SRC="$REPO_ROOT/app-icon/MapPath.icon"
 CONTAINER_SRC="$REPO_ROOT/container-app"
+PRIVACY_SRC="$REPO_ROOT/PrivacyInfo.xcprivacy"
 
 if [[ ! -d "$XCODE_APP_DIR" ]]; then
     echo "Error: Xcode container app dir not found at:" >&2
@@ -77,12 +82,54 @@ run cp "$CONTAINER_SRC/Resources/Base.lproj/Main.html" \
 run cp "$CONTAINER_SRC/Resources/Script.js" "$XCODE_RESOURCES/Script.js"
 run cp "$CONTAINER_SRC/Resources/Style.css" "$XCODE_RESOURCES/Style.css"
 
+# Hardened ViewController.swift (force-unwrap cleanup + os_log on error paths).
+run cp "$CONTAINER_SRC/ViewController.swift" "$XCODE_APP_DIR/ViewController.swift"
+
 # Hero icon shown in Main.html — resize from the .icon source to 512x512.
 run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"
 
-# Asset catalog: wipe legacy AppIcon formats; copy .icon source in as AppIcon.icon.
-run rm -rf "$XCODE_CATALOG/AppIcon.icon" "$XCODE_CATALOG/AppIcon.appiconset"
-run cp -R "$ICON_SRC" "$XCODE_CATALOG/AppIcon.icon"
+# Asset catalog: build AppIcon.appiconset from the .icon source.
+# Why the legacy .appiconset format and not the newer .icon-as-asset?
+# The Mac App Store validator (90236) requires a 1024x1024 entry in AppIcon.icns
+# that the .icon-only pipeline doesn't reliably produce on archive. The
+# .appiconset with explicit PNGs at all sizes always passes.
+SRC_PNG="$ICON_SRC/Assets/icon.png"
+APPICONSET="$XCODE_CATALOG/AppIcon.appiconset"
+run rm -rf "$XCODE_CATALOG/AppIcon.icon" "$APPICONSET"
+run mkdir -p "$APPICONSET"
+
+# Mac sizes (16, 32, 128, 256, 512 pt at 1x and 2x) + iOS universal 1024.
+run sips -z   16   16 "$SRC_PNG" --out "$APPICONSET/mac-icon-16@1x.png"
+run sips -z   32   32 "$SRC_PNG" --out "$APPICONSET/mac-icon-16@2x.png"
+run sips -z   32   32 "$SRC_PNG" --out "$APPICONSET/mac-icon-32@1x.png"
+run sips -z   64   64 "$SRC_PNG" --out "$APPICONSET/mac-icon-32@2x.png"
+run sips -z  128  128 "$SRC_PNG" --out "$APPICONSET/mac-icon-128@1x.png"
+run sips -z  256  256 "$SRC_PNG" --out "$APPICONSET/mac-icon-128@2x.png"
+run sips -z  256  256 "$SRC_PNG" --out "$APPICONSET/mac-icon-256@1x.png"
+run sips -z  512  512 "$SRC_PNG" --out "$APPICONSET/mac-icon-256@2x.png"
+run sips -z  512  512 "$SRC_PNG" --out "$APPICONSET/mac-icon-512@1x.png"
+run sips -z 1024 1024 "$SRC_PNG" --out "$APPICONSET/mac-icon-512@2x.png"
+run sips -z 1024 1024 "$SRC_PNG" --out "$APPICONSET/universal-icon-1024@1x.png"
+
+# Contents.json maps each PNG to its size/idiom/scale slot.
+run cp "$CONTAINER_SRC/Assets.xcassets/AppIcon.appiconset/Contents.json" \
+       "$APPICONSET/Contents.json"
+
+# Privacy manifest: shared between App and Extension targets (both declare no
+# tracking, no data collection, no required-reason APIs).
+run cp "$PRIVACY_SRC" "$XCODE_APP_DIR/PrivacyInfo.xcprivacy"
+run cp "$PRIVACY_SRC" "$XCODE_EXT_DIR/PrivacyInfo.xcprivacy"
+
+# Patch macOS Info.plist with LSApplicationCategoryType (required by Mac App
+# Store — error 90242 without it). Idempotent: skips if already present.
+INFO_PLIST_MAC="$REPO_ROOT/Map Path/macOS (App)/Info.plist"
+if [[ -f "$INFO_PLIST_MAC" ]]; then
+    if ! /usr/libexec/PlistBuddy -c "Print :LSApplicationCategoryType" "$INFO_PLIST_MAC" >/dev/null 2>&1; then
+        run /usr/libexec/PlistBuddy \
+            -c "Add :LSApplicationCategoryType string public.app-category.utilities" \
+            "$INFO_PLIST_MAC"
+    fi
+fi
 
 if [[ "$APPLY" -eq 1 ]]; then
     echo ""
