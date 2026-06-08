@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Map Path</title>
+    <link rel="stylesheet" href="../Style.css">
+    <script src="../Script.js" defer></script>
+</head>
+<body>
+<main>
+    <header class="hero">
+        <img class="app-icon" src="../Icon.png" width="72" height="72" alt="Map Path">
+        <h1>Welcome to Map Path</h1>
+        <p class="tagline">Thanks for installing — here's how to turn it on.</p>
+    </header>
+
+    <!-- macOS: one-click path -->
+    <section class="cta platform-mac">
+        <p class="status state-unknown">Click below to open Safari's Extensions settings.</p>
+        <p class="status state-on"><strong>Map Path is on.</strong> You're all set.</p>
+        <p class="status state-off"><strong>Map Path is currently off.</strong> Click below to enable it.</p>
+        <button class="open-preferences">Quit &amp; Open Safari Extensions Settings…</button>
+        <p class="cta-hint">In the Extensions tab, check <strong>Map Path</strong>, then when prompted choose <strong>Always Allow on Every Website</strong>.</p>
+    </section>
+
+    <!-- macOS: manual steps for first-time extension users -->
+    <section class="steps platform-mac">
+        <h2>New to Safari extensions?</h2>
+        <ol>
+            <li>Open <strong>Safari</strong>.</li>
+            <li>Choose <strong>Safari &rsaquo; Settings…</strong> (⌘,), then click <strong>Extensions</strong>.</li>
+            <li>Check the box next to <strong>Map Path</strong>.</li>
+            <li>When prompted about website access, choose <strong>Always Allow on Every Website</strong>.</li>
+        </ol>
+    </section>
+
+    <!-- iOS / iPadOS: step-by-step (no programmatic shortcut available) -->
+    <section class="steps platform-ios">
+        <h2>Turn it on — iPhone &amp; iPad (iOS / iPadOS 26.5)</h2>
+        <ol>
+            <li>Open <strong>Settings</strong>.</li>
+            <li>Tap <strong>Apps</strong>, then <strong>Safari</strong>, then <strong>Extensions</strong>.</li>
+            <li>Tap <strong>Map Path</strong> and turn the toggle on.</li>
+            <li>Under <em>Permissions</em>, tap <strong>All Websites</strong> and choose <strong>Allow</strong>.</li>
+        </ol>
+        <p class="alt">Or, from any Safari tab: tap the <strong>&ldquo;ᴀA&rdquo;</strong> button in the address bar &rarr; <strong>Manage Extensions</strong> &rarr; toggle Map Path on.</p>
+    </section>
+
+    <section class="about">
+        <p>Map Path rewrites map links from Google Maps, Waze, Bing Maps, HERE WeGo, and <code>geo:</code> URIs so clicks open in <strong>Apple Maps</strong>. Everything runs on your device — granting access to all websites is what lets Map Path see map links, nothing else leaves Safari.</p>
+    </section>
+
+    <footer>
+        <p class="privacy">No tracking · No analytics · No network calls · No storage</p>
+        <p class="brand">By CodeCrafted Apps · codecraftedapps.com</p>
+    </footer>
+</main>
+</body>
+</html>
