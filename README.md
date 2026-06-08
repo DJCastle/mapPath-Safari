@@ -46,13 +46,14 @@ Already-`maps.apple.com` links are left untouched.
 
 ```
 extension/        canonical web-extension source (manifest, content.js, popup, icons)
-docs/             public GitHub Pages site (static, no data, no backend)
-HANDOFF.md        build + design spec
+app-icon/         Icon Composer adaptive app icon
+test/             parser test harness (node test/parser.test.mjs)
 PRIVACY.md        privacy policy
 ```
 
 The Xcode container app is a **build artifact** generated from `extension/` via
-Apple's converter — it is `.gitignore`d, not committed. See [HANDOFF.md](HANDOFF.md).
+Apple's converter — it is `.gitignore`d, not committed. The product website lives
+in the separate `codeCraftedApps` repo at `codecraftedapps.com/extensions/map-path/`.
 
 ---
 
@@ -73,8 +74,6 @@ xcrun safari-web-extension-converter ./extension \
 Then in Xcode: select a signing Team, **⌘B** build, **⌘R** run. In Safari:
 Settings → Advanced → "Show Develop menu", then Develop → Allow Unsigned
 Extensions (local testing only).
-
-Full steps and decisions are in [HANDOFF.md](HANDOFF.md).
 
 ---
 

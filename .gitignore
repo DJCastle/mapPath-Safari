@@ -13,3 +13,6 @@ xcuserdata/
 
 # Node / tooling (icon pipeline, if used locally)
 node_modules/
+
+# Internal build/handoff doc — local only, not for the public repo
+HANDOFF.md
