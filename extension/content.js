@@ -53,6 +53,15 @@
       return { daddr: c ? null : d, ll: c || undefined, saddr: orig ? place(orig) : undefined };
     }
 
+    // Path-style directions: /maps/dir/<origin>/<destination>[/@...]. The
+    // destination is the last named segment; [^/@] stops us grabbing @coords.
+    const dir = u.pathname.match(/\/maps\/dir\/([^/]*)\/([^/@]+)/);
+    if (dir) {
+      const decode = (s) => decodeURIComponent(s.replace(/\+/g, " "));
+      const saddr = dir[1] ? place(decode(dir[1])) : undefined;
+      return { saddr, daddr: place(decode(dir[2])) };
+    }
+
     // Explicit query params.
     let q = sp.get("q") || sp.get("query");
 
@@ -167,6 +176,19 @@
       return null;
     }
     if (u.hostname.toLowerCase().endsWith("maps.apple.com")) return null; // already Apple Maps
+
+    // geo: URIs — geo:lat,lng[;crs/u=..][?q=label]. No host, so handle before classify.
+    if (u.protocol === "geo:") {
+      const body = href.slice(href.indexOf(":") + 1);
+      const [coordPart, queryPart] = body.split("?");
+      const q = queryPart ? new URLSearchParams(queryPart).get("q") : null;
+      const ll = asCoords((coordPart || "").split(";")[0]);
+      // geo:0,0?q=Label is the "named place" convention — prefer the label.
+      if (q && (!ll || ll === "0,0")) return appleURL(asCoords(q) ? { ll: asCoords(q) } : { q });
+      if (ll) return appleURL({ ll });
+      return null;
+    }
+
     const handler = classify(u);
     if (!handler) return null;
     const desc = handler(u);
