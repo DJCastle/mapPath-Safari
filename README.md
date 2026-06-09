@@ -27,6 +27,7 @@ which keeps permissions minimal and the privacy story airtight.
 | Waze          | `waze.com/ul?ll=`, `?q=` |
 | Bing Maps     | `bing.com/maps?q=`, `cp=lat~lng` |
 | HERE WeGo     | `wego.here.com/?map=`, `here.com` |
+| `geo:` URIs   | `geo:lat,lng`, `geo:0,0?q=Place+Name` |
 | Raw coords    | `q=lat,lng`, `ll=lat,lng` |
 
 Already-`maps.apple.com` links are left untouched.
@@ -36,6 +37,15 @@ Already-`maps.apple.com` links are left untouched.
 - **Opaque shorteners** (`goo.gl/maps`, `maps.app.goo.gl`) can't be resolved
   without following them — a network call we refuse to make. They're left
   untouched (best effort).
+- **Embedded map widgets (iframes) are not touched.** When a page embeds a
+  Google Maps iframe (real estate listings, store locators, event pages), the
+  embed stays as-is. Apple ships no web-embed equivalent to Google's Maps
+  Embed API, and `maps.apple.com` blocks iframe loading via `X-Frame-Options`,
+  so there's nothing reliable to swap to. The navigation action — the
+  separate `<a>` link to "open in maps" — still gets rewritten.
+- **JavaScript-driven links** (e.g., `<button onclick="location='...'">`) bypass
+  rewriting. Map Path operates on `<a href>` attributes; pages that route
+  clicks through JS handlers aren't intercepted.
 - Coordinate edge cases and Google Plus Codes may not translate cleanly. A small
   miss rate (~5%) is normal for this category; the extension never produces a
   worse link than the original — when in doubt, it leaves the link alone.
