@@ -42,19 +42,19 @@
     <section class="cta-ios platform-ios">
         <button class="btn-ios primary" data-action="open-ios-settings">Open Settings</button>
         <button class="btn-ios secondary" data-action="dismiss-onboarding">I'll do this later</button>
-        <p class="cta-hint">&ldquo;Open Settings&rdquo; takes you to Map Path's iOS settings. From there, tap <strong>Safari Extensions</strong> &rarr; turn on <strong>Map Path</strong> &rarr; allow <strong>All Websites</strong>.</p>
+        <p class="cta-hint">Takes you to Map Path's iOS settings. Turn on <strong>Allow Extension</strong>, then under <em>Permissions</em> tap <strong>All Websites</strong> and choose <strong>Allow</strong> — not Ask.</p>
     </section>
 
     <!-- iOS / iPadOS: step-by-step (full manual path) -->
     <section class="steps platform-ios">
         <h2>Step by step</h2>
         <ol>
-            <li>Open <strong>Settings</strong>.</li>
-            <li>Tap <strong>Apps</strong>, then <strong>Safari</strong>, then <strong>Extensions</strong>.</li>
-            <li>Tap <strong>Map Path</strong> and turn the toggle on.</li>
+            <li>Open <strong>Settings</strong> &rarr; <strong>Apps</strong> &rarr; <strong>Safari</strong> &rarr; <strong>Extensions</strong>. <span class="muted-note">(Older iOS: <strong>Settings</strong> &rarr; <strong>Safari</strong> &rarr; <strong>Extensions</strong>.)</span></li>
+            <li>Tap <strong>Map Path</strong>, then turn <strong>Allow Extension</strong> on.</li>
             <li>Under <em>Permissions</em>, tap <strong>All Websites</strong> and choose <strong>Allow</strong>.</li>
         </ol>
-        <p class="alt">Or, from any Safari tab: tap the <strong>&ldquo;ᴀA&rdquo;</strong> button in the address bar &rarr; <strong>Manage Extensions</strong> &rarr; toggle Map Path on.</p>
+        <p class="critical"><strong>This step matters.</strong> <strong>All Websites</strong> must be <strong>Allow</strong> — if it's left on <strong>Ask</strong>, Map Path can't rewrite map links and clicks will still open Google or Waze.</p>
+        <p class="alt"><strong>Optional:</strong> turn on <strong>Allow in Private Browsing</strong> if you use Private tabs and want Map Path to work there too.</p>
     </section>
 
     <!-- iOS / iPadOS: shown after the user taps "I'll do this later" -->

@@ -231,6 +231,30 @@ button.open-preferences:active { filter: brightness(0.94); }
 }
 .alt strong { color: var(--fg-soft) !important; }
 
+/* Critical permission note (iOS Allow vs Ask trap). Stands out without
+   feeling like an error — soft amber on the existing card. */
+.critical {
+    margin-top: 10px !important;
+    padding: 9px 12px;
+    background: rgba(255, 159, 10, 0.10);
+    border-left: 3px solid #ff9f0a;
+    border-radius: 6px;
+    font-size: 12px !important;
+    line-height: 1.45;
+    color: var(--fg-soft) !important;
+}
+.critical strong { color: var(--fg) !important; font-weight: 600; }
+@media (prefers-color-scheme: dark) {
+    .critical { background: rgba(255, 159, 10, 0.14); }
+}
+
+/* Small parenthetical note inside step text (older iOS path hint). */
+.muted-note {
+    color: var(--muted);
+    font-size: 0.9em;
+}
+.muted-note strong { color: var(--muted); font-weight: 500; }
+
 /* ---- Dismissed view (iOS only, after "I'll do this later") ---- */
 .dismissed-view {
     text-align: center;
