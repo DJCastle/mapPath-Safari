@@ -107,17 +107,23 @@ run rm -rf "$XCODE_CATALOG/AppIcon.icon" "$APPICONSET"
 run mkdir -p "$APPICONSET"
 
 # Mac sizes (16, 32, 128, 256, 512 pt at 1x and 2x) + iOS universal 1024.
-run sips -z   16   16 "$SRC_PNG" --out "$APPICONSET/mac-icon-16@1x.png"
-run sips -z   32   32 "$SRC_PNG" --out "$APPICONSET/mac-icon-16@2x.png"
-run sips -z   32   32 "$SRC_PNG" --out "$APPICONSET/mac-icon-32@1x.png"
-run sips -z   64   64 "$SRC_PNG" --out "$APPICONSET/mac-icon-32@2x.png"
-run sips -z  128  128 "$SRC_PNG" --out "$APPICONSET/mac-icon-128@1x.png"
-run sips -z  256  256 "$SRC_PNG" --out "$APPICONSET/mac-icon-128@2x.png"
-run sips -z  256  256 "$SRC_PNG" --out "$APPICONSET/mac-icon-256@1x.png"
-run sips -z  512  512 "$SRC_PNG" --out "$APPICONSET/mac-icon-256@2x.png"
-run sips -z  512  512 "$SRC_PNG" --out "$APPICONSET/mac-icon-512@1x.png"
-run sips -z 1024 1024 "$SRC_PNG" --out "$APPICONSET/mac-icon-512@2x.png"
-run sips -z 1024 1024 "$SRC_PNG" --out "$APPICONSET/universal-icon-1024@1x.png"
+# All app-icon PNGs MUST be opaque — the Mac App Store validator (error
+# 90717) rejects any large app icon with an alpha channel. Use the Swift
+# flattener to composite the transparent source onto a solid white
+# background before resizing. Toolbar icons under extension/icons/ stay
+# transparent (different render context — Safari toolbar).
+FLATTEN="$REPO_ROOT/scripts/flatten-icon.swift"
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-16@1x.png"          16
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-16@2x.png"          32
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-32@1x.png"          32
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-32@2x.png"          64
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-128@1x.png"        128
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-128@2x.png"        256
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-256@1x.png"        256
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-256@2x.png"        512
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-512@1x.png"        512
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/mac-icon-512@2x.png"       1024
+run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/universal-icon-1024@1x.png" 1024
 
 # Contents.json maps each PNG to its size/idiom/scale slot.
 run cp "$CONTAINER_SRC/Assets.xcassets/AppIcon.appiconset/Contents.json" \
