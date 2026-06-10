@@ -38,6 +38,9 @@ document.querySelectorAll("button[data-action]").forEach((btn) => {
             case "open-ios-settings":
                 postToController("open-ios-settings");
                 break;
+            case "open-test-page":
+                postToController("open-test-page");
+                break;
             case "dismiss-onboarding":
                 document.body.classList.add("state-dismissed");
                 break;

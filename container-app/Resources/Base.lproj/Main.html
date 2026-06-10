@@ -38,11 +38,12 @@
         </ol>
     </section>
 
-    <!-- iOS / iPadOS: primary actions (open Settings, or dismiss) -->
+    <!-- iOS / iPadOS: primary actions (open Settings, test setup, or dismiss) -->
     <section class="cta-ios platform-ios">
         <button class="btn-ios primary" data-action="open-ios-settings">Open Settings</button>
+        <button class="btn-ios tertiary" data-action="open-test-page">Test it now</button>
         <button class="btn-ios secondary" data-action="dismiss-onboarding">I'll do this later</button>
-        <p class="cta-hint">Takes you to Map Path's iOS settings. Turn on <strong>Allow Extension</strong>, then under <em>Permissions</em> tap <strong>All Websites</strong> and choose <strong>Allow</strong> — not Ask.</p>
+        <p class="cta-hint"><strong>Open Settings</strong> jumps to Map Path's settings (turn on <strong>Allow Extension</strong> + <strong>All Websites: Allow</strong>). <strong>Test it now</strong> opens a Safari test page — if a tap on a Google Maps link opens Apple Maps, your setup is complete.</p>
     </section>
 
     <!-- iOS / iPadOS: step-by-step (full manual path) -->
@@ -70,6 +71,7 @@
     <section class="dismissed-view platform-ios">
         <h2>Map Path is installed</h2>
         <p>Enable it in Safari whenever you're ready — your map links will start opening in Apple Maps from there.</p>
+        <button class="btn-ios tertiary" data-action="open-test-page">Test it now</button>
         <button class="btn-ios secondary" data-action="show-steps-again">Show setup steps again</button>
     </section>
 

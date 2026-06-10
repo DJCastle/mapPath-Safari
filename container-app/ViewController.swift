@@ -118,6 +118,16 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
             if let url = URL(string: UIApplication.openSettingsURLString) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
+        case "open-test-page":
+            // Behavioral self-test: opens Safari to the public test page. If
+            // the extension is correctly enabled with All Websites = Allow,
+            // tapping a Google Maps link there will open Apple Maps. iOS does
+            // not expose extension-state APIs to the container app, so a
+            // behavioral round-trip is the closest workable substitute for
+            // an automatic "all 3 steps done" check.
+            if let url = URL(string: "https://codecraftedapps.com/extensions/map-path/test.html") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         default:
             // "dismiss-onboarding" and "show-steps-again" are JS-only — no
             // native action needed.

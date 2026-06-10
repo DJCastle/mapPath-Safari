@@ -207,9 +207,16 @@ button.open-preferences:active { filter: brightness(0.94); }
     background: rgba(10, 132, 255, 0.10);
     font-weight: 500;
 }
+/* Tertiary = green "Test it now" / verify action. */
+.btn-ios.tertiary {
+    color: var(--green);
+    background: rgba(52, 199, 89, 0.12);
+    font-weight: 600;
+}
 .btn-ios:active { filter: brightness(0.92); }
 @media (prefers-color-scheme: dark) {
     .btn-ios.secondary { background: rgba(10, 132, 255, 0.18); }
+    .btn-ios.tertiary  { background: rgba(48, 209, 88, 0.18); }
 }
 
 /* ---- Steps section ---- */
