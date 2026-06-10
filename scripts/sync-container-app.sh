@@ -106,21 +106,39 @@ run mkdir -p "$XCODE_CATALOG/LaunchBackground.colorset"
 run cp "$CONTAINER_SRC/Assets.xcassets/LaunchBackground.colorset/Contents.json" \
        "$XCODE_CATALOG/LaunchBackground.colorset/Contents.json"
 
-# LargeIcon imageset — the image the launch storyboard renders centered. The
-# converter template ships a stale icon with a white background baked in;
-# replace with transparent versions of the current design at 1x/2x/3x so the
-# cream LaunchBackground shows through cleanly around the icon.
+# LargeIcon imageset — the image the launch storyboard renders centered.
+# Generated via scripts/shadow-icon.swift so the icon arrives with a soft
+# drop shadow baked in (depth on the launch screen). Output is transparent;
+# the cream/map background behind it shows through around the edges.
 run mkdir -p "$XCODE_CATALOG/LargeIcon.imageset"
 run cp "$CONTAINER_SRC/Assets.xcassets/LargeIcon.imageset/Contents.json" \
        "$XCODE_CATALOG/LargeIcon.imageset/Contents.json"
-run sips -z 160 160 "$ICON_SRC/Assets/icon.png" \
-        --out "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@1x.png"
-run sips -z 320 320 "$ICON_SRC/Assets/icon.png" \
-        --out "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@2x.png"
-run sips -z 480 480 "$ICON_SRC/Assets/icon.png" \
-        --out "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@3x.png"
+run swift "$REPO_ROOT/scripts/shadow-icon.swift" \
+        "$ICON_SRC/Assets/icon.png" \
+        "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@1x.png" \
+        160
+run swift "$REPO_ROOT/scripts/shadow-icon.swift" \
+        "$ICON_SRC/Assets/icon.png" \
+        "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@2x.png" \
+        320
+run swift "$REPO_ROOT/scripts/shadow-icon.swift" \
+        "$ICON_SRC/Assets/icon.png" \
+        "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@3x.png" \
+        480
 # Remove the converter template's stale icon-256.png to avoid mixing.
 run rm -f "$XCODE_CATALOG/LargeIcon.imageset/icon-256.png"
+
+# LaunchMapBackground imageset — the abstract street-network image rendered
+# edge-to-edge behind the LargeIcon. iPhone @3x and iPad @2x crops live in
+# the canonical container-app source (pre-cropped from a licensed Adobe
+# Stock asset; the raw source is not redistributed). Just mirror them.
+run mkdir -p "$XCODE_CATALOG/LaunchMapBackground.imageset"
+run cp "$CONTAINER_SRC/Assets.xcassets/LaunchMapBackground.imageset/Contents.json" \
+       "$XCODE_CATALOG/LaunchMapBackground.imageset/Contents.json"
+run cp "$CONTAINER_SRC/Assets.xcassets/LaunchMapBackground.imageset/LaunchBg-iphone@3x.png" \
+       "$XCODE_CATALOG/LaunchMapBackground.imageset/LaunchBg-iphone@3x.png"
+run cp "$CONTAINER_SRC/Assets.xcassets/LaunchMapBackground.imageset/LaunchBg-ipad@2x.png" \
+       "$XCODE_CATALOG/LaunchMapBackground.imageset/LaunchBg-ipad@2x.png"
 
 # Hero icon shown in Main.html — resize from the .icon source to 512x512.
 run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"

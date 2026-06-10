@@ -1,0 +1,18 @@
+{
+  "images" : [
+    {
+      "idiom" : "iphone",
+      "filename" : "LaunchBg-iphone@3x.png",
+      "scale" : "3x"
+    },
+    {
+      "idiom" : "ipad",
+      "filename" : "LaunchBg-ipad@2x.png",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
