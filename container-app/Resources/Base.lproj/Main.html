@@ -25,6 +25,7 @@
         <p class="status state-off"><strong>Map Path is currently off.</strong> Click below to enable it.</p>
         <button class="open-preferences">Quit &amp; Open Safari Extensions Settings…</button>
         <p class="cta-hint">In the Extensions tab, check <strong>Map Path</strong>, then when prompted choose <strong>Always Allow on Every Website</strong>.</p>
+        <p class="cta-hint state-on">If a tap on a map link doesn't open in Apple Maps, check the per-site permission for that domain — make sure it's <strong>Always Allow</strong>, not <strong>Ask</strong>.</p>
     </section>
 
     <!-- macOS: manual steps for first-time extension users -->
@@ -43,7 +44,7 @@
         <button class="btn-ios primary" data-action="open-ios-settings">Open Settings</button>
         <button class="btn-ios tertiary" data-action="open-test-page">Test it now</button>
         <button class="btn-ios secondary" data-action="dismiss-onboarding">I'll do this later</button>
-        <p class="cta-hint"><strong>Open Settings</strong> jumps to Map Path's settings (turn on <strong>Allow Extension</strong> + <strong>All Websites: Allow</strong>). <strong>Test it now</strong> opens a Safari test page — if a tap on a Google Maps link opens Apple Maps, your setup is complete.</p>
+        <p class="cta-hint"><strong>Open Settings</strong> jumps to Map Path's settings (turn on <strong>Allow Extension</strong> + <strong>All Websites: Allow</strong>). <strong>Test it now</strong> opens a Safari test page — if a tap on a Google Maps link opens Apple Maps, your setup is complete. If it still opens Google or Waze, the most likely fix is <strong>All Websites: Allow</strong> (not Ask).</p>
     </section>
 
     <!-- iOS / iPadOS: step-by-step (full manual path) -->
@@ -63,7 +64,9 @@
             <li><strong>Set All Websites to Allow.</strong> Same screen, under <em>Permissions</em>, tap <strong>All Websites</strong> and choose <strong>Allow</strong>.
                 <span class="critical-inline">If this is left on <strong>Ask</strong>, Map Path can't run and clicks still open the original map service.</span>
             </li>
-            <li><strong>Optional &mdash; Private Browsing.</strong> If you want map links to route to Apple Maps inside Safari's Private tabs too, also turn on <strong>Allow in Private Browsing</strong>.</li>
+            <li><strong>Optional &mdash; Private Browsing.</strong> If you want map links to route to Apple Maps inside Safari's Private tabs too, also turn on <strong>Allow in Private Browsing</strong>.
+                <span class="critical-inline"><strong>Heads up about privacy:</strong> Apple Maps keeps its own Recents list, independent of Safari. A map link you tap from a Private Safari tab will still show up in Apple Maps' Recents. Map Path can't change that — only Apple controls Maps' history. If that matters to you, clear Maps' Recents from inside the Maps app.</span>
+            </li>
         </ol>
     </section>
 
