@@ -85,6 +85,9 @@ run cp "$CONTAINER_SRC/Resources/Style.css" "$XCODE_RESOURCES/Style.css"
 # Hardened ViewController.swift (force-unwrap cleanup + os_log on error paths).
 run cp "$CONTAINER_SRC/ViewController.swift" "$XCODE_APP_DIR/ViewController.swift"
 
+# macOS AppDelegate with explicit secure-coding opt-in for restorable state.
+run cp "$CONTAINER_SRC/AppDelegate-macOS.swift" "$REPO_ROOT/Map Path/macOS (App)/AppDelegate.swift"
+
 # Hero icon shown in Main.html — resize from the .icon source to 512x512.
 run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"
 

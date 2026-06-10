@@ -4,7 +4,8 @@
 //
 //  Hardened version: removes force unwraps / casts on the launch path and logs
 //  the previously-silent error branches via os_log. Container-app behavior is
-//  unchanged.
+//  unchanged except for an explicit preferredContentSize on macOS so the
+//  onboarding fits without scrolling at default window size.
 //
 
 import WebKit
@@ -34,6 +35,12 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
 
 #if os(iOS)
         self.webView.scrollView.isScrollEnabled = false
+#elseif os(macOS)
+        // Size the container window so the full onboarding fits without
+        // scrolling at default open size. The storyboard ships a smaller
+        // default; this overrides it. Width is the typical small-utility
+        // width on macOS; height accommodates the hero + CTA + steps cards.
+        self.preferredContentSize = NSSize(width: 480, height: 560)
 #endif
 
         self.webView.configuration.userContentController.add(self, name: "controller")
