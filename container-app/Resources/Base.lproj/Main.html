@@ -55,13 +55,15 @@
         </p>
         <h2>3 steps in iOS Settings</h2>
         <ol>
-            <li><strong>Turn on Allow Extension.</strong> In <strong>Settings</strong> &rarr; <strong>Apps</strong> &rarr; <strong>Safari</strong> &rarr; <strong>Extensions</strong>, tap <strong>Map Path</strong> and switch <strong>Allow Extension</strong> on.</li>
+            <!-- Step 1 — variant shown depends on detected iOS version. -->
+            <li class="step-modern-ios"><strong>Turn on Allow Extension.</strong> In <strong>Settings</strong> &rarr; <strong>Apps</strong> &rarr; <strong>Safari</strong> &rarr; <strong>Extensions</strong>, tap <strong>Map Path</strong> and switch <strong>Allow Extension</strong> on.</li>
+            <li class="step-legacy-ios"><strong>Turn on Allow Extension.</strong> In <strong>Settings</strong> &rarr; <strong>Safari</strong> &rarr; <strong>Extensions</strong>, tap <strong>Map Path</strong> and switch <strong>Allow Extension</strong> on.</li>
+
             <li><strong>Set All Websites to Allow.</strong> Same screen, under <em>Permissions</em>, tap <strong>All Websites</strong> and choose <strong>Allow</strong>.
                 <span class="critical-inline">If this is left on <strong>Ask</strong>, Map Path can't run and clicks still open the original map service.</span>
             </li>
             <li><strong>Optional &mdash; Private Browsing.</strong> If you want map links to route to Apple Maps inside Safari's Private tabs too, also turn on <strong>Allow in Private Browsing</strong>.</li>
         </ol>
-        <p class="muted-note">Older iOS: the path is <strong>Settings</strong> &rarr; <strong>Safari</strong> &rarr; <strong>Extensions</strong> (no &ldquo;Apps&rdquo; step).</p>
     </section>
 
     <!-- iOS / iPadOS: shown after the user taps "I'll do this later" -->

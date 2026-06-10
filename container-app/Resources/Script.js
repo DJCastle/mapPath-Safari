@@ -1,6 +1,8 @@
 // Called from ViewController.swift after the page loads. Sets platform/state
 // classes on <body> so the CSS shows the right onboarding section.
-function show(platform, enabled) {
+// On iOS the third arg ("modern" for iOS 17+ or "legacy" for older) controls
+// which Settings menu path is shown in step 1.
+function show(platform, enabled, variant) {
     document.body.classList.add(`platform-${platform}`);
 
     if (typeof enabled === "boolean") {
@@ -9,6 +11,10 @@ function show(platform, enabled) {
     } else {
         document.body.classList.remove("state-on");
         document.body.classList.remove("state-off");
+    }
+
+    if (variant) {
+        document.body.classList.add(`ios-${variant}`);
     }
 }
 

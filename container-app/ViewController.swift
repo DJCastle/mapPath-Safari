@@ -60,7 +60,13 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 #if os(iOS)
-        webView.evaluateJavaScript("show('ios')")
+        // Pass the iOS-version variant so the onboarding shows the correct
+        // Settings menu path. iOS 17 introduced the "Apps" intermediate level
+        // (Settings → Apps → Safari → Extensions); older iOS goes directly
+        // (Settings → Safari → Extensions).
+        let major = ProcessInfo.processInfo.operatingSystemVersion.majorVersion
+        let variant = major >= 17 ? "modern" : "legacy"
+        webView.evaluateJavaScript("show('ios', null, '\(variant)')")
 #elseif os(macOS)
         webView.evaluateJavaScript("show('mac')")
 

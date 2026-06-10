@@ -267,12 +267,25 @@ button.open-preferences:active { filter: brightness(0.94); }
     .critical-inline { background: rgba(255, 159, 10, 0.14); }
 }
 
-/* Small parenthetical note inside step text (older iOS path hint). */
+/* Small parenthetical note inside step text. Kept for any future use; not
+   currently rendered since the iOS variant is now resolved at runtime. */
 .muted-note {
     color: var(--muted);
     font-size: 0.9em;
 }
 .muted-note strong { color: var(--muted); font-weight: 500; }
+
+/* iOS version-specific step variants. ViewController.swift detects the
+   running iOS major version and adds either ios-modern (iOS 17+) or
+   ios-legacy (iOS 15-16) to the body. The other variant stays hidden. */
+.step-modern-ios, .step-legacy-ios { display: none; }
+body.ios-modern .step-modern-ios { display: list-item; }
+body.ios-legacy .step-legacy-ios { display: list-item; }
+/* Safety fallback: if no variant gets set (e.g. an even-newer future iOS
+   that we haven't keyed for), show the modern path. */
+body.platform-ios:not(.ios-modern):not(.ios-legacy) .step-modern-ios {
+    display: list-item;
+}
 
 /* ---- Dismissed view (iOS only, after "I'll do this later") ---- */
 .dismissed-view {
