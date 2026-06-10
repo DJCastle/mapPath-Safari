@@ -43,12 +43,17 @@ done
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 XCODE_APP_DIR="$REPO_ROOT/Map Path/Shared (App)"
-XCODE_EXT_DIR="$REPO_ROOT/Map Path/Shared (Extension)"
 XCODE_RESOURCES="$XCODE_APP_DIR/Resources"
 XCODE_CATALOG="$XCODE_APP_DIR/Assets.xcassets"
 ICON_SRC="$REPO_ROOT/app-icon/MapPath.icon"
 CONTAINER_SRC="$REPO_ROOT/container-app"
 PRIVACY_SRC="$REPO_ROOT/PrivacyInfo.xcprivacy"
+
+# Old releases of this script also wrote a copy at Shared (Extension)/
+# PrivacyInfo.xcprivacy. The Xcode project now references the Shared (App)
+# copy from all 4 targets, so the extension-side file is orphaned. Clear
+# it on each apply to keep the tree clean.
+ORPHAN_PRIVACY="$REPO_ROOT/Map Path/Shared (Extension)/PrivacyInfo.xcprivacy"
 
 if [[ ! -d "$XCODE_APP_DIR" ]]; then
     echo "Error: Xcode container app dir not found at:" >&2
@@ -118,10 +123,14 @@ run sips -z 1024 1024 "$SRC_PNG" --out "$APPICONSET/universal-icon-1024@1x.png"
 run cp "$CONTAINER_SRC/Assets.xcassets/AppIcon.appiconset/Contents.json" \
        "$APPICONSET/Contents.json"
 
-# Privacy manifest: shared between App and Extension targets (both declare no
-# tracking, no data collection, no required-reason APIs).
+# Privacy manifest: one canonical copy in Shared (App). The Xcode project
+# references this single PBXFileReference from all 4 targets' Copy Bundle
+# Resources phases, so it ships inside both the App and the Extension
+# bundles without needing a separate file under Shared (Extension).
 run cp "$PRIVACY_SRC" "$XCODE_APP_DIR/PrivacyInfo.xcprivacy"
-run cp "$PRIVACY_SRC" "$XCODE_EXT_DIR/PrivacyInfo.xcprivacy"
+if [[ -f "$ORPHAN_PRIVACY" ]]; then
+    run rm "$ORPHAN_PRIVACY"
+fi
 
 # Patch macOS Info.plist with LSApplicationCategoryType (required by Mac App
 # Store — error 90242 without it). Idempotent: skips if already present.
