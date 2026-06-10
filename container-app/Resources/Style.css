@@ -12,19 +12,21 @@
     --paper: #f3efe6;
     --card: #ffffff;
     --fg: #1c1c1e;
+    --fg-soft: #3a3a3c;
     --muted: #7a766c;
     --blue: #0a84ff;
     --green: #34c759;
     --red: #ff3b30;
-    --hairline: rgba(0, 0, 0, 0.08);
+    --hairline: rgba(0, 0, 0, 0.10);
     --shadow: rgba(0, 0, 0, 0.10);
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --paper: #15181c;
-        --card: #1f2329;
-        --fg: #f2f2f7;
-        --muted: #9b978d;
+        --paper: #1c1c1e;          /* macOS dark window background */
+        --card: #2c2c2e;            /* macOS dark card background  */
+        --fg: #ffffff;
+        --fg-soft: #d1d1d6;
+        --muted: #98989d;
         --blue: #0a84ff;
         --green: #30d158;
         --red: #ff453a;
@@ -36,161 +38,179 @@
 html, body { height: 100%; margin: 0; }
 
 body {
-    font-family: -apple-system, system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: 13px;
     color: var(--fg);
     background: var(--paper);
-    overflow-y: auto;
+    overflow: hidden;
 }
 
+/* Maps-route gradient bar at the top. */
 body::before {
     content: "";
-    display: block;
+    flex-shrink: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--blue), var(--green));
 }
 
 main {
-    max-width: 460px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 520px;
+    width: 100%;
     margin: 0 auto;
-    padding: 12px 18px 16px;
+    padding: 22px 26px 18px;
+    overflow-y: auto;
 }
 
 /* ---- Hero (horizontal: icon left, title+tagline right) ---- */
 .hero {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 12px;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-shrink: 0;
 }
 .app-icon {
     flex-shrink: 0;
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     border-radius: 22%;
-    box-shadow: 0 3px 10px var(--shadow);
+    box-shadow: 0 4px 14px var(--shadow);
 }
 .hero-text { flex: 1; min-width: 0; }
 h1 {
-    margin: 0 0 2px;
-    font-size: 18px;
+    margin: 0 0 3px;
+    font-size: 20px;
     font-weight: 600;
     line-height: 1.2;
+    letter-spacing: -0.01em;
 }
 .tagline {
     margin: 0;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
-    line-height: 1.3;
+    line-height: 1.35;
 }
 
-/* ---- Generic section ---- */
+/* ---- Generic section card ---- */
 section {
     background: var(--card);
     border: 1px solid var(--hairline);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
 }
 
 h2 {
-    margin: 0 0 6px;
-    font-size: 11.5px;
+    margin: 0 0 8px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    color: var(--fg);
+    letter-spacing: -0.005em;
 }
 
-section p { margin: 0; font-size: 12.5px; line-height: 1.4; }
+section p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--fg-soft); }
 section p + p { margin-top: 6px; }
 section strong { color: var(--blue); font-weight: 600; }
 
 code {
     font-family: ui-monospace, SFMono-Regular, monospace;
     font-size: 0.9em;
-    padding: 1px 4px;
+    padding: 1px 5px;
     background: var(--hairline);
     border-radius: 4px;
+    color: var(--fg);
 }
 
 /* ---- CTA section (the headline action on Mac) ---- */
 .cta {
     text-align: center;
-    padding: 12px 14px;
-    border-left: 3px solid var(--blue);
+    padding: 18px 18px 16px;
 }
 .cta .status {
-    margin: 0 0 8px;
-    font-size: 12.5px;
+    margin: 0 0 14px;
+    font-size: 13px;
     color: var(--fg);
 }
-.cta .status strong { color: var(--fg); }
+.cta .status strong { color: var(--fg); font-weight: 600; }
 .cta .status.state-on strong { color: var(--green); }
 .cta .status.state-off strong { color: var(--red); }
 
 button.open-preferences {
     display: inline-block;
-    padding: 7px 16px;
-    font-family: -apple-system, system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 600;
+    padding: 8px 22px;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
     color: #fff;
     background: var(--blue);
     border: 0;
-    border-radius: 7px;
+    border-radius: 8px;
     cursor: pointer;
+    box-shadow: 0 1px 3px rgba(10, 132, 255, 0.25);
+    transition: filter 0.08s ease;
 }
-button.open-preferences:hover { filter: brightness(1.05); }
-button.open-preferences:active { filter: brightness(0.92); }
+button.open-preferences:hover { filter: brightness(1.06); }
+button.open-preferences:active { filter: brightness(0.94); }
 
 .cta-hint {
-    margin-top: 8px !important;
-    font-size: 11px !important;
-    color: var(--muted);
-    line-height: 1.35;
+    margin-top: 12px !important;
+    font-size: 11.5px !important;
+    color: var(--muted) !important;
+    line-height: 1.4;
 }
-.cta-hint strong { color: var(--fg); }
+.cta-hint strong { color: var(--fg-soft) !important; }
 
 /* ---- Steps section ---- */
 .steps ol {
     margin: 0;
     padding-left: 20px;
-    line-height: 1.45;
+    line-height: 1.55;
+    color: var(--fg-soft);
 }
-.steps ol li { margin-bottom: 2px; font-size: 12.5px; }
+.steps ol li { margin-bottom: 4px; font-size: 12.5px; }
 .steps ol li:last-child { margin-bottom: 0; }
-.steps ol strong { color: var(--fg); }
+.steps ol strong { color: var(--fg); font-weight: 600; }
 
 .alt {
-    margin-top: 8px !important;
-    font-size: 11px !important;
-    color: var(--muted);
-    line-height: 1.35;
+    margin-top: 10px !important;
+    font-size: 11.5px !important;
+    color: var(--muted) !important;
+    line-height: 1.4;
 }
-.alt strong { color: var(--fg); }
+.alt strong { color: var(--fg-soft) !important; }
 
 /* ---- About (small, terse explainer near footer) ---- */
 .about {
     background: transparent;
     border: 0;
-    padding: 0 4px;
-    margin-bottom: 6px;
+    padding: 4px 6px 0;
+    margin-bottom: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
 }
 .about p {
-    font-size: 11px;
-    line-height: 1.45;
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.5;
     color: var(--muted);
 }
-.about strong { color: var(--fg); }
+.about strong { color: var(--fg-soft); }
 
 /* ---- Footer ---- */
 footer {
     text-align: center;
-    padding: 4px 4px 0;
+    padding: 12px 4px 0;
+    flex-shrink: 0;
 }
-footer p { margin: 2px 0; font-size: 10.5px; }
-footer .privacy { color: var(--green); font-weight: 500; }
+footer p { margin: 3px 0; font-size: 11px; }
+footer .privacy { color: var(--green); font-weight: 500; letter-spacing: 0.005em; }
 footer .brand { color: var(--muted); }
 
 /* ---- Platform + state visibility (driven by Script.js) ---- */
