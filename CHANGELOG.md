@@ -3,37 +3,69 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [1.0.0] - 2026-06-10
 
-### Added
+Initial public release on the App Store for Safari on macOS, iOS,
+iPadOS, and visionOS.
 
-- Initial web-extension source (`extension/`): MV3 manifest, content-script link
-  rewriter, and static about popup.
-- Per-source link parsers for Google Maps, Waze, Bing Maps, and HERE WeGo, plus
-  raw coordinate detection.
-- Hostname-based source classification (avoids substring false-positives).
-- Project docs: README, PRIVACY, LICENSE (MIT).
-- Adaptive app icon (`app-icon/MapPath.icon`), built in Icon Composer — route-to-pin
-  mark on a map grid; Light / Dark / Clear appearances.
-- Extension toolbar icons (`extension/icons/icon-{48,96,128,256,512}.png`),
-  generated from the app icon (placeholder downscales — replace with purpose-built
-  glyphs before submission).
-- Expanded parser coverage: Google path-style directions (`/maps/dir/A/B`) and
-  `geo:` URIs (`geo:lat,lng`, `geo:0,0?q=label`, `;u=`/`;crs=` suffixes).
-- Parser test harness (`test/parser.test.mjs`): fake-DOM + `vm` runner asserting
-  22 real-world link variations rewrite (or are intentionally left alone). 22/22 passing.
-- Public marketing/legal/test pages shipped in the `codeCraftedApps` repo at
-  `codecraftedapps.com/extensions/map-path/` (index, privacy, terms, support,
-  test.html). Map Path wired into the Safari category page + extensions hub.
+### Web extension
 
-### Changed
+- MV3 manifest with the minimum surface: a single content script, no
+  `host_permissions`, no `webRequest`, no `declarativeNetRequest`,
+  no `optional_permissions`. Just `<all_urls>` match for the rewriter
+  and an `action` popup.
+- Per-source link parsers for Google Maps, Waze, Bing Maps, HERE WeGo,
+  `geo:` URIs, and raw coordinates. Hostname-based classification
+  avoids the substring trap (`atmosphere.com` vs `here.com`).
+- Parser test harness (`test/parser.test.mjs`) — fake-DOM + `vm` runner
+  asserting real-world link variations rewrite (or are intentionally
+  left alone). **28/28 passing.**
+- Single-layer transparent Safari toolbar icons (48/96/128/256/512),
+  rendered from the canonical `app-icon/MapPath.icon` source.
+- Popup links to the marketing page and the support/FAQ page in addition
+  to the privacy bullets.
 
-- Site plan superseded: no standalone `docs/` GitHub Pages site / `*.codecraftedapps.com`
-  subdomain. The site is a product-folder subpath in the consolidated
-  `codecraftedapps.com` site instead.
+### Container app
 
-### Pending
+- Adaptive single-layer app icon (Icon Composer), Mac asset catalog
+  covers all required sizes (16→1024 at @1x/@2x) plus the iOS
+  universal 1024.
+- Container-app onboarding rewritten from the Apple converter template:
+  horizontal welcome hero, one-click "Quit & Open Safari Extensions
+  Settings" CTA on macOS, platform-specific step-by-step enablement
+  for iOS / iPadOS 26.5 and macOS 26.5, terse on-device explainer
+  near the footer.
+- `ViewController.swift` hardened: no force unwraps on launch path,
+  no force cast on the script-message body, error branches now log via
+  `os_log` instead of swallowing silently.
+- `AppDelegate` implements `applicationSupportsSecureRestorableState`
+  to silence the macOS secure-coding warning.
+- macOS Info.plist sets `LSApplicationCategoryType =
+  public.app-category.utilities`.
 
-- Xcode container app via `safari-web-extension-converter`.
+### Privacy
 
-[Unreleased]: https://github.com/DJCastle/mapPath-Safari
+- `PrivacyInfo.xcprivacy` at the repo root declares `NSPrivacyTracking
+  = false`, empty tracking domains, empty collected data, and empty
+  accessed required-reason APIs.
+- No analytics, no network calls of any kind from the extension, no
+  storage. Verifiable in source.
+
+### Project layout
+
+- Canonical sources are `extension/`, `container-app/`, and
+  `app-icon/MapPath.icon/`. The Xcode tree (`Map Path/`) is
+  gitignored because the `.xcodeproj` embeds the Apple Team ID.
+- `scripts/sync-container-app.sh` (dry-run by default, `--apply` to
+  write) regenerates the Xcode tree's customized files from the
+  canonical sources, builds the asset catalog from the icon source,
+  copies the privacy manifest into both target dirs, and patches
+  `LSApplicationCategoryType` into the macOS Info.plist via
+  `PlistBuddy`. Fresh-Mac flow: `safari-web-extension-converter
+  extension/` → set dev team in Xcode → `scripts/sync-container-app.sh
+  --apply` → drag-add `PrivacyInfo.xcprivacy` to all 4 targets in
+  Xcode → build.
+- Public marketing/legal/test/support pages live in the
+  `codeCraftedApps` repo at `codecraftedapps.com/extensions/map-path/`.
+
+[1.0.0]: https://github.com/DJCastle/mapPath-Safari/releases/tag/v1.0.0

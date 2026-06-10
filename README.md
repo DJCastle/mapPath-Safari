@@ -5,8 +5,7 @@ page and routes them to **Apple Maps** instead of Google Maps, Waze, Bing Maps,
 or HERE WeGo.
 
 Privacy-first: **no tracking, no analytics, no network calls — fully on-device.**
-By [CodeCrafted Apps](https://codecraftedapps.com), part of the Digital Life
-Compass ecosystem.
+By [CodeCrafted Apps](https://codecraftedapps.com).
 
 **Platforms:** macOS, iOS, iPadOS, visionOS. (Not tvOS — no Safari on Apple TV.)
 
