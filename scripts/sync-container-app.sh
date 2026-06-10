@@ -93,6 +93,19 @@ run cp "$CONTAINER_SRC/ViewController.swift" "$XCODE_APP_DIR/ViewController.swif
 # macOS AppDelegate with explicit secure-coding opt-in for restorable state.
 run cp "$CONTAINER_SRC/AppDelegate-macOS.swift" "$REPO_ROOT/Map Path/macOS (App)/AppDelegate.swift"
 
+# iOS LaunchScreen storyboard — cream paper background + auto-layout centering
+# (the converter template ships a fixed-frame layout on a white system
+# background, which leaves the icon off-center on iPhone/iPad sizes outside
+# the iPhone 11 default).
+run cp "$CONTAINER_SRC/LaunchScreen.storyboard" \
+       "$REPO_ROOT/Map Path/iOS (App)/Base.lproj/LaunchScreen.storyboard"
+
+# LaunchBackground colorset — the named color the launch storyboard references
+# for its background (light cream paper / dark slate to mirror the onboarding).
+run mkdir -p "$XCODE_CATALOG/LaunchBackground.colorset"
+run cp "$CONTAINER_SRC/Assets.xcassets/LaunchBackground.colorset/Contents.json" \
+       "$XCODE_CATALOG/LaunchBackground.colorset/Contents.json"
+
 # Hero icon shown in Main.html — resize from the .icon source to 512x512.
 run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"
 
