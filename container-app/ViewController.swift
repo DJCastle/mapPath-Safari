@@ -3,9 +3,9 @@
 //  Shared (App)
 //
 //  Hardened version: removes force unwraps / casts on the launch path and logs
-//  the previously-silent error branches via os_log. Container-app behavior is
-//  unchanged except for an explicit preferredContentSize on macOS so the
-//  onboarding fits without scrolling at default window size.
+//  the previously-silent error branches via os_log. iOS branch now allows
+//  scrolling (fallback when content exceeds viewport) and handles the
+//  "open-ios-settings" message posted by the iOS CTA button.
 //
 
 import WebKit
@@ -34,7 +34,11 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
         self.webView.navigationDelegate = self
 
 #if os(iOS)
-        self.webView.scrollView.isScrollEnabled = false
+        // Allow scroll as a graceful fallback when Dynamic Type or smaller
+        // devices push content past the viewport. CSS layout aims to fit
+        // without scrolling at typical sizes.
+        self.webView.scrollView.isScrollEnabled = true
+        self.webView.scrollView.alwaysBounceVertical = false
 #elseif os(macOS)
         // Size the container window so the full onboarding fits without
         // scrolling at default open size. The storyboard ships a smaller
@@ -81,10 +85,10 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard let body = message.body as? String else { return }
+
 #if os(macOS)
-        guard let body = message.body as? String, body == "open-preferences" else {
-            return
-        }
+        guard body == "open-preferences" else { return }
 
         SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
             if let error = error {
@@ -97,6 +101,21 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
             DispatchQueue.main.async {
                 NSApp.terminate(self)
             }
+        }
+#elseif os(iOS)
+        switch body {
+        case "open-ios-settings":
+            // Opens iOS Settings to Map Path's own app page. From there, the
+            // user taps Safari Extensions → Map Path → toggle on → All
+            // Websites → Allow. There is no public API to deep-link directly
+            // to the extension's permission row.
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        default:
+            // "dismiss-onboarding" and "show-steps-again" are JS-only — no
+            // native action needed.
+            break
         }
 #endif
     }

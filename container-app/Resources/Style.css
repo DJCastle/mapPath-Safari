@@ -45,6 +45,9 @@ body {
     color: var(--fg);
     background: var(--paper);
     overflow: hidden;
+    /* Respect iOS safe areas (notch / home indicator). */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Maps-route gradient bar at the top. */
@@ -127,7 +130,7 @@ code {
     color: var(--fg);
 }
 
-/* ---- CTA section (the headline action on Mac) ---- */
+/* ---- macOS CTA section ---- */
 .cta {
     text-align: center;
     padding: 18px 18px 16px;
@@ -166,6 +169,49 @@ button.open-preferences:active { filter: brightness(0.94); }
 }
 .cta-hint strong { color: var(--fg-soft) !important; }
 
+/* ---- iOS / iPadOS CTA section (with action buttons) ---- */
+.cta-ios {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 16px 18px;
+}
+.cta-ios .cta-hint {
+    text-align: left;
+    margin-top: 4px !important;
+}
+
+/* iOS-native style buttons. Min height 44pt for touch (HIG). */
+.btn-ios {
+    display: block;
+    width: 100%;
+    padding: 13px 18px;
+    min-height: 50px;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: filter 0.08s ease, background 0.08s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.btn-ios.primary {
+    color: #fff;
+    background: var(--blue);
+    box-shadow: 0 1px 3px rgba(10, 132, 255, 0.25);
+}
+.btn-ios.secondary {
+    color: var(--blue);
+    background: rgba(10, 132, 255, 0.10);
+    font-weight: 500;
+}
+.btn-ios:active { filter: brightness(0.92); }
+@media (prefers-color-scheme: dark) {
+    .btn-ios.secondary { background: rgba(10, 132, 255, 0.18); }
+}
+
 /* ---- Steps section ---- */
 .steps ol {
     margin: 0;
@@ -184,6 +230,13 @@ button.open-preferences:active { filter: brightness(0.94); }
     line-height: 1.4;
 }
 .alt strong { color: var(--fg-soft) !important; }
+
+/* ---- Dismissed view (iOS only, after "I'll do this later") ---- */
+.dismissed-view {
+    text-align: center;
+}
+.dismissed-view h2 { margin-bottom: 8px; }
+.dismissed-view p { margin-bottom: 14px !important; text-align: center; }
 
 /* ---- About (small, terse explainer near footer) ---- */
 .about {
@@ -223,3 +276,61 @@ body.platform-mac .platform-ios { display: none; }
 body:not(.state-on, .state-off) :is(.state-on, .state-off) { display: none; }
 body.state-on :is(.state-off, .state-unknown) { display: none; }
 body.state-off :is(.state-on, .state-unknown) { display: none; }
+
+/* "Dismissed" state on iOS hides the steps + CTA; the dismissed-view appears. */
+.dismissed-view { display: none; }
+body.state-dismissed.platform-ios .dismissed-view { display: block; }
+body.state-dismissed.platform-ios .cta-ios,
+body.state-dismissed.platform-ios .steps.platform-ios { display: none; }
+
+/* ============================================================
+   ADAPTIVE SIZING — iOS / iPadOS
+   Larger fonts + touch-friendly spacing per Apple HIG.
+   ============================================================ */
+
+/* iPhone and small iPads — bump body text to readable size. */
+body.platform-ios {
+    font-size: 15px;
+    overflow-y: auto;  /* allow scrolling if content exceeds viewport */
+}
+body.platform-ios main {
+    max-width: 620px;
+    padding: 24px 22px 22px;
+    overflow-y: visible;
+}
+body.platform-ios .hero { margin-bottom: 22px; gap: 18px; }
+body.platform-ios .app-icon { width: 72px; height: 72px; }
+body.platform-ios h1 { font-size: 24px; margin-bottom: 4px; }
+body.platform-ios .tagline { font-size: 15px; }
+body.platform-ios section { padding: 18px 20px; margin-bottom: 12px; border-radius: 14px; }
+body.platform-ios h2 { font-size: 16px; margin-bottom: 10px; }
+body.platform-ios section p { font-size: 14.5px; line-height: 1.5; }
+body.platform-ios .steps ol li { font-size: 14.5px; margin-bottom: 6px; }
+body.platform-ios .cta-hint { font-size: 13px !important; }
+body.platform-ios .alt { font-size: 13px !important; }
+body.platform-ios .about p { font-size: 13px; }
+body.platform-ios footer p { font-size: 12.5px; }
+
+/* iPad and larger — even bigger headings, wider content area. */
+@media (min-width: 700px) {
+    body.platform-ios { font-size: 16px; }
+    body.platform-ios main { max-width: 720px; padding: 32px 28px 28px; }
+    body.platform-ios .hero { gap: 22px; margin-bottom: 28px; }
+    body.platform-ios .app-icon { width: 88px; height: 88px; }
+    body.platform-ios h1 { font-size: 28px; }
+    body.platform-ios .tagline { font-size: 16px; }
+    body.platform-ios section { padding: 22px 24px; margin-bottom: 14px; }
+    body.platform-ios h2 { font-size: 18px; }
+    body.platform-ios section p { font-size: 15.5px; }
+    body.platform-ios .steps ol li { font-size: 15.5px; }
+    body.platform-ios .btn-ios { font-size: 17px; min-height: 54px; padding: 14px 22px; }
+    body.platform-ios .cta-ios { gap: 12px; }
+}
+
+/* Very small phones (older iPhone SE-ish) — tighten so content fits. */
+@media (max-width: 380px) {
+    body.platform-ios main { padding: 18px 18px 18px; }
+    body.platform-ios .app-icon { width: 60px; height: 60px; }
+    body.platform-ios h1 { font-size: 21px; }
+    body.platform-ios section { padding: 14px 16px; margin-bottom: 9px; }
+}

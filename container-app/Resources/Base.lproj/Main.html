@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Map Path</title>
     <link rel="stylesheet" href="../Style.css">
     <script src="../Script.js" defer></script>
@@ -11,7 +11,7 @@
 <body>
 <main>
     <header class="hero">
-        <img class="app-icon" src="../Icon.png" width="56" height="56" alt="Map Path">
+        <img class="app-icon" src="../Icon.png" width="64" height="64" alt="Map Path">
         <div class="hero-text">
             <h1>Welcome to Map Path</h1>
             <p class="tagline">Thanks for installing — here's how to turn it on.</p>
@@ -38,9 +38,16 @@
         </ol>
     </section>
 
-    <!-- iOS / iPadOS: step-by-step (no programmatic shortcut available) -->
+    <!-- iOS / iPadOS: primary actions (open Settings, or dismiss) -->
+    <section class="cta-ios platform-ios">
+        <button class="btn-ios primary" data-action="open-ios-settings">Open Settings</button>
+        <button class="btn-ios secondary" data-action="dismiss-onboarding">I'll do this later</button>
+        <p class="cta-hint">&ldquo;Open Settings&rdquo; takes you to Map Path's iOS settings. From there, tap <strong>Safari Extensions</strong> &rarr; turn on <strong>Map Path</strong> &rarr; allow <strong>All Websites</strong>.</p>
+    </section>
+
+    <!-- iOS / iPadOS: step-by-step (full manual path) -->
     <section class="steps platform-ios">
-        <h2>Turn it on — iPhone &amp; iPad (iOS / iPadOS 26.5)</h2>
+        <h2>Step by step</h2>
         <ol>
             <li>Open <strong>Settings</strong>.</li>
             <li>Tap <strong>Apps</strong>, then <strong>Safari</strong>, then <strong>Extensions</strong>.</li>
@@ -48,6 +55,13 @@
             <li>Under <em>Permissions</em>, tap <strong>All Websites</strong> and choose <strong>Allow</strong>.</li>
         </ol>
         <p class="alt">Or, from any Safari tab: tap the <strong>&ldquo;ᴀA&rdquo;</strong> button in the address bar &rarr; <strong>Manage Extensions</strong> &rarr; toggle Map Path on.</p>
+    </section>
+
+    <!-- iOS / iPadOS: shown after the user taps "I'll do this later" -->
+    <section class="dismissed-view platform-ios">
+        <h2>Map Path is installed</h2>
+        <p>Enable it in Safari whenever you're ready — your map links will start opening in Apple Maps from there.</p>
+        <button class="btn-ios secondary" data-action="show-steps-again">Show setup steps again</button>
     </section>
 
     <section class="about">
