@@ -231,21 +231,40 @@ button.open-preferences:active { filter: brightness(0.94); }
 }
 .alt strong { color: var(--fg-soft) !important; }
 
-/* Critical permission note (iOS Allow vs Ask trap). Stands out without
-   feeling like an error — soft amber on the existing card. */
-.critical {
-    margin-top: 10px !important;
-    padding: 9px 12px;
-    background: rgba(255, 159, 10, 0.10);
-    border-left: 3px solid #ff9f0a;
+/* Red "Important — please read" header on the iOS steps card.
+   Strong enough to demand attention before the steps; uses system red
+   (no emoji, no shouting). */
+.warning {
+    margin: 0 0 14px !important;
+    padding: 11px 13px;
+    background: rgba(255, 59, 48, 0.10);
+    border-left: 3px solid var(--red);
     border-radius: 6px;
-    font-size: 12px !important;
-    line-height: 1.45;
-    color: var(--fg-soft) !important;
+    font-size: 12.5px !important;
+    line-height: 1.5;
+    color: var(--fg) !important;
 }
-.critical strong { color: var(--fg) !important; font-weight: 600; }
+.warning strong { color: var(--red) !important; font-weight: 700; }
 @media (prefers-color-scheme: dark) {
-    .critical { background: rgba(255, 159, 10, 0.14); }
+    .warning { background: rgba(255, 69, 58, 0.15); }
+}
+
+/* Inline critical note attached to step 2 (All Websites = Allow, not Ask).
+   Lives inside the <li>, so it visually belongs to that step rather than
+   floating as a separate card-level callout. */
+.critical-inline {
+    display: block;
+    margin-top: 5px;
+    padding: 7px 10px;
+    background: rgba(255, 159, 10, 0.10);
+    border-left: 2px solid #ff9f0a;
+    border-radius: 5px;
+    font-size: 11.5px;
+    color: var(--fg-soft);
+}
+.critical-inline strong { color: var(--fg); font-weight: 600; }
+@media (prefers-color-scheme: dark) {
+    .critical-inline { background: rgba(255, 159, 10, 0.14); }
 }
 
 /* Small parenthetical note inside step text (older iOS path hint). */
