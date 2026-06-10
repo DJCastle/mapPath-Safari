@@ -106,6 +106,22 @@ run mkdir -p "$XCODE_CATALOG/LaunchBackground.colorset"
 run cp "$CONTAINER_SRC/Assets.xcassets/LaunchBackground.colorset/Contents.json" \
        "$XCODE_CATALOG/LaunchBackground.colorset/Contents.json"
 
+# LargeIcon imageset — the image the launch storyboard renders centered. The
+# converter template ships a stale icon with a white background baked in;
+# replace with transparent versions of the current design at 1x/2x/3x so the
+# cream LaunchBackground shows through cleanly around the icon.
+run mkdir -p "$XCODE_CATALOG/LargeIcon.imageset"
+run cp "$CONTAINER_SRC/Assets.xcassets/LargeIcon.imageset/Contents.json" \
+       "$XCODE_CATALOG/LargeIcon.imageset/Contents.json"
+run sips -z 160 160 "$ICON_SRC/Assets/icon.png" \
+        --out "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@1x.png"
+run sips -z 320 320 "$ICON_SRC/Assets/icon.png" \
+        --out "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@2x.png"
+run sips -z 480 480 "$ICON_SRC/Assets/icon.png" \
+        --out "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@3x.png"
+# Remove the converter template's stale icon-256.png to avoid mixing.
+run rm -f "$XCODE_CATALOG/LargeIcon.imageset/icon-256.png"
+
 # Hero icon shown in Main.html — resize from the .icon source to 512x512.
 run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"
 
