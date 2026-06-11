@@ -95,8 +95,9 @@
 
   function fromWaze(u) {
     const sp = u.searchParams;
-    // waze.com/ul?ll=lat,lng | ?ll=lat%2Clng
-    const ll = asCoords(sp.get("ll")) || asCoords((sp.get("ll") || "").replace("%2C", ","));
+    // waze.com/ul?ll=lat,lng | ?ll=lat%2Clng (searchParams.get already decodes
+    // the %2C, so a single asCoords call covers both forms).
+    const ll = asCoords(sp.get("ll"));
     if (ll) return { ll };
     // livemap "to=ll.lat,lng"
     const to = sp.get("to") || sp.get("navigate");
@@ -223,9 +224,18 @@
 
   rewrite(document);
 
-  // Re-run on DOM changes (SPAs, lazy-loaded results), scoped to added nodes.
+  // Re-run on DOM changes (SPAs, lazy-loaded results). Scoped to added nodes,
+  // plus href changes on existing anchors — SPAs often swap an anchor's href
+  // in place to a map URL without replacing the node. Our own rewrite sets the
+  // href once and marks the anchor, so the resulting attribute mutation is a
+  // no-op (rewriteLink early-returns on the REWRITTEN marker) — no loop.
   const observer = new MutationObserver((mutations) => {
     for (const mut of mutations) {
+      if (mut.type === "attributes") {
+        const t = mut.target;
+        if (t && t.nodeType === 1 && t.matches && t.matches("a[href]")) rewriteLink(t);
+        continue;
+      }
       for (const node of mut.addedNodes) {
         if (node.nodeType !== 1) continue;
         if (node.matches && node.matches("a[href]")) rewriteLink(node);
@@ -233,5 +243,10 @@
       }
     }
   });
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["href"],
+  });
 })();
