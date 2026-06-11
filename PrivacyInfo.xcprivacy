@@ -5,7 +5,9 @@
     <!--
       Map Path privacy manifest.
       Required by App Store for new submissions since May 2024.
-      Map Path: no tracking, no data collection, no required-reason APIs.
+      Map Path: no tracking, no data collection. The one required-reason API we
+      touch is UserDefaults (the container app's first-open flag) — declared
+      below with reason CA92.1 (read/write the app's own defaults only).
     -->
     <key>NSPrivacyTracking</key>
     <false/>
@@ -14,6 +16,15 @@
     <key>NSPrivacyCollectedDataTypes</key>
     <array/>
     <key>NSPrivacyAccessedAPITypes</key>
-    <array/>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>
