@@ -27,7 +27,8 @@
 body {
   margin: 0;
   min-width: 264px;
-  font: -apple-system-body, system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 13px;
   color: var(--fg);
   background: var(--paper);
 }
