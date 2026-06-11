@@ -41,16 +41,21 @@ function postToController(message) {
     }
 }
 
-// macOS "Quit & Open Safari Extensions Settings…" button.
-const openBtn = document.querySelector("button.open-preferences");
-if (openBtn) {
-    openBtn.addEventListener("click", () => postToController("open-preferences"));
-}
+// macOS "Quit & Open Safari Extensions Settings…" buttons.
+// Both the first-open onboarding card AND the verification view have a button
+// with this class. Use querySelectorAll + forEach so both get the handler;
+// querySelector alone would only wire up the first one and the verify-view
+// button would silently do nothing.
+document.querySelectorAll("button.open-preferences").forEach((btn) => {
+    btn.addEventListener("click", () => postToController("open-preferences"));
+});
 
-// Data-action buttons (iOS CTA + dismissed-view actions).
-document.querySelectorAll("button[data-action]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const action = btn.getAttribute("data-action");
+// Data-action handlers. Match any element with [data-action], not just
+// <button>, so the "Show me the setup steps again" <p class="text-link">
+// element in the verification view also gets a click handler.
+document.querySelectorAll("[data-action]").forEach((el) => {
+    el.addEventListener("click", () => {
+        const action = el.getAttribute("data-action");
         switch (action) {
             case "open-ios-settings":
                 postToController("open-ios-settings");
