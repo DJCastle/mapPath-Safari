@@ -48,9 +48,15 @@
     const dest = sp.get("destination") || sp.get("daddr");
     if (dest) {
       const orig = sp.get("origin") || sp.get("saddr");
-      const d = place(dest);
+      const saddr = orig ? place(orig) : undefined;
+      // A coordinate destination with no origin reads best as a dropped pin
+      // (ll). But if an origin is present it's a directions request — keep the
+      // destination as daddr (place() preserves literal coords) so Apple Maps
+      // actually routes, instead of emitting ll+saddr and silently dropping the
+      // origin (which would be a worse link than the original).
       const c = asCoords(dest);
-      return { daddr: c ? null : d, ll: c || undefined, saddr: orig ? place(orig) : undefined };
+      if (c && !saddr) return { ll: c };
+      return { daddr: place(dest), saddr };
     }
 
     // Path-style directions: /maps/dir/<origin>/<destination>[/@...]. The

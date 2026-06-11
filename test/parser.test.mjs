@@ -69,6 +69,7 @@ const cases = [
   ["Google ?q raw coords (shared pin)", "https://www.google.com/maps?q=29.4259671,-98.4861419", A + "ll=29.4259671,-98.4861419"],
   ["Google classic ?daddr full address", "https://maps.google.com/maps?daddr=Liberty+Bell+Center,+526+Market+St,+Philadelphia,+PA", A + "daddr=" + enc("Liberty Bell Center, 526 Market St, Philadelphia, PA")],
   ["Google share api=1 query=coords", "https://www.google.com/maps/search/?api=1&query=38.8894838%2C-77.0352791&query_place_id=ChIJ", A + "ll=38.8894838,-77.0352791"],
+  ["Google dir origin + coordinate destination (keep directions)", "https://www.google.com/maps/dir/?api=1&origin=Washington+Monument&destination=38.8893%2C-77.0502", A + "saddr=" + enc("Washington Monument") + "&daddr=" + enc("38.8893,-77.0502")],
 
   // ----- Waze -----
   ["Waze app share ll (encoded comma)", "https://www.waze.com/ul?ll=38.8910500%2C-77.0479700&navigate=yes&zoom=17", A + "ll=38.89105,-77.04797"],
