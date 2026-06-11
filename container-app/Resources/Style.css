@@ -347,6 +347,58 @@ body.state-dismissed.platform-ios .cta-ios,
 body.state-dismissed.platform-ios .steps.platform-ios { display: none; }
 
 /* ============================================================
+   VERIFICATION VIEW (return visits)
+   On second-and-later launches, ViewController.swift sets state-verify
+   on <body>. We swap the full onboarding (CTA + steps) for a compact
+   "check-and-test" view per platform. User can tap "Show me the setup
+   steps again" to revert.
+   ============================================================ */
+
+/* Hidden by default — only shown when state-verify is on body. */
+.verify-view { display: none; }
+
+body.state-verify .verify-view.platform-mac.cta { display: block; }
+body.state-verify .verify-view.platform-ios.cta-ios { display: flex; }
+
+/* When in verify mode, hide the first-open onboarding (CTA + steps cards
+   that are not the verify-view). The :not(.verify-view) selector lets the
+   verify-view section keep its own .cta / .cta-ios layout. */
+body.state-verify .cta:not(.verify-view),
+body.state-verify .cta-ios:not(.verify-view),
+body.state-verify .steps { display: none; }
+
+/* Verify-view styling shared bits. */
+.verify-view .check-mark { color: var(--green); font-weight: 700; margin-right: 4px; }
+.verify-view .cross-mark { color: var(--red); font-weight: 700; margin-right: 4px; }
+
+.verify-prompt {
+    margin: 0 0 12px !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    color: var(--fg) !important;
+    text-align: center;
+}
+
+.text-link {
+    margin-top: 14px !important;
+    text-align: center;
+    color: var(--blue) !important;
+    font-size: 12.5px !important;
+    cursor: pointer;
+    text-decoration: underline;
+    -webkit-user-select: none;
+}
+.text-link:hover { filter: brightness(1.1); }
+
+/* iPhone size bump for verification prompt and text-link to match iOS scale. */
+body.platform-ios .verify-prompt { font-size: 16px !important; }
+body.platform-ios .text-link { font-size: 14.5px !important; }
+@media (min-width: 700px) {
+    body.platform-ios .verify-prompt { font-size: 18px !important; }
+    body.platform-ios .text-link { font-size: 15.5px !important; }
+}
+
+/* ============================================================
    ADAPTIVE SIZING — iOS / iPadOS
    Larger fonts + touch-friendly spacing per Apple HIG.
    ============================================================ */

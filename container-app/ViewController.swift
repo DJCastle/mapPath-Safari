@@ -28,10 +28,25 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
 
     @IBOutlet var webView: WKWebView!
 
+    // True if the container app has been opened at least once before.
+    // Drives the bifurcated onboarding-vs-verification UI in Main.html.
+    private var isReturnVisit: Bool = false
+
+    private static let hasOpenedBeforeKey = "MapPathHasOpenedBefore"
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.webView.navigationDelegate = self
+
+        // First-open detection. Stored in UserDefaults so it persists across
+        // launches. We check before writing so the very first launch sees
+        // isReturnVisit == false and subsequent launches see true.
+        let defaults = UserDefaults.standard
+        self.isReturnVisit = defaults.bool(forKey: Self.hasOpenedBeforeKey)
+        if !self.isReturnVisit {
+            defaults.set(true, forKey: Self.hasOpenedBeforeKey)
+        }
 
 #if os(iOS)
         // Allow scroll as a graceful fallback when Dynamic Type or smaller
@@ -59,6 +74,8 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let verifyJS = isReturnVisit ? "true" : "false"
+
 #if os(iOS)
         // Pass the iOS-version variant so the onboarding shows the correct
         // Settings menu path. iOS 17 introduced the "Apps" intermediate level
@@ -66,9 +83,9 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
         // (Settings → Safari → Extensions).
         let major = ProcessInfo.processInfo.operatingSystemVersion.majorVersion
         let variant = major >= 17 ? "modern" : "legacy"
-        webView.evaluateJavaScript("show('ios', null, '\(variant)')")
+        webView.evaluateJavaScript("show('ios', null, '\(variant)', \(verifyJS))")
 #elseif os(macOS)
-        webView.evaluateJavaScript("show('mac')")
+        webView.evaluateJavaScript("show('mac', null, null, \(verifyJS))")
 
         SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { (state, error) in
             if let error = error {

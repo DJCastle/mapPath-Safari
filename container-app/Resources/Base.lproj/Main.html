@@ -78,6 +78,25 @@
         <button class="btn-ios secondary" data-action="show-steps-again">Show setup steps again</button>
     </section>
 
+    <!-- macOS: verification view, shown on return visits in place of CTA + steps -->
+    <section class="verify-view cta platform-mac">
+        <p class="status state-unknown">Map Path's status couldn't be confirmed. Click below to check in Safari's Extensions settings.</p>
+        <p class="status state-on"><span class="check-mark">✓</span> <strong>Map Path is enabled</strong> in Safari.</p>
+        <p class="status state-off"><span class="cross-mark">✗</span> <strong>Map Path is not enabled</strong> in Safari.</p>
+        <button class="open-preferences">Quit &amp; Open Safari Extensions Settings…</button>
+        <p class="cta-hint">If a tap on a map link doesn't open in Apple Maps, the per-site permission is the likely cause — set <strong>Always Allow</strong>, not <strong>Ask</strong>, for that site.</p>
+        <p class="text-link" data-action="show-setup-steps">Show me the setup steps again</p>
+    </section>
+
+    <!-- iOS / iPadOS: verification view, shown on return visits -->
+    <section class="verify-view cta-ios platform-ios">
+        <p class="verify-prompt">Setup complete? Tap below to test.</p>
+        <button class="btn-ios tertiary" data-action="open-test-page">Test it now</button>
+        <button class="btn-ios secondary" data-action="open-ios-settings">Open Settings (re-check)</button>
+        <p class="cta-hint"><strong>Test it now</strong> opens a Safari test page. If a tap on a Google Maps link opens Apple Maps, you're done. If it still opens Google or Waze, the most likely fix is <strong>All Websites: Allow</strong> (not Ask) in Map Path's Safari Extensions settings.</p>
+        <p class="text-link" data-action="show-setup-steps">Show me the setup steps again</p>
+    </section>
+
     <section class="about">
         <p>Map Path rewrites map links from Google Maps, Waze, Bing Maps, HERE WeGo, and <code>geo:</code> URIs so clicks open in <strong>Apple Maps</strong>. Everything runs on your device — granting access to all websites is what lets Map Path see map links, nothing else leaves Safari.</p>
     </section>
