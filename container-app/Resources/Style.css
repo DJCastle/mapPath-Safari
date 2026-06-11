@@ -380,9 +380,17 @@ body.state-verify .steps { display: none; }
 }
 
 .text-link {
+    /* Rendered as a <button> for keyboard/VoiceOver access; reset the native
+       button chrome so it still looks like a plain centered text link. */
+    display: block;
+    width: 100%;
     margin-top: 14px !important;
+    padding: 0;
+    border: none;
+    background: none;
     text-align: center;
     color: var(--blue) !important;
+    font-family: inherit;
     font-size: 12.5px !important;
     cursor: pointer;
     text-decoration: underline;
