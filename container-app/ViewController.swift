@@ -9,6 +9,10 @@
 //  SafariServices calls stay here and are injected into SwiftUI as closures so
 //  the view layer carries no AppKit/UIKit imports.
 //
+//  macOS additionally polls the live extension state (every second while the
+//  window is open, plus an instant refresh when the app regains focus) so the
+//  status updates the moment the user enables Map Path in Safari and returns.
+//
 
 import SwiftUI
 import Observation
@@ -61,6 +65,8 @@ final class OnboardingModel {
 struct OnboardingActions {
     var openSettings: () -> Void = {}
     var openTestPage: () -> Void = {}
+    var closeWindow: () -> Void = {}
+    var recheck: () -> Void = {}
 }
 
 // MARK: - Hosting view controller
@@ -69,6 +75,10 @@ class ViewController: PlatformViewController {
 
     private static let hasOpenedBeforeKey = "MapPathHasOpenedBefore"
     private var model: OnboardingModel?
+
+#if os(macOS)
+    private var statePollTimer: Timer?
+#endif
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,6 +100,10 @@ class ViewController: PlatformViewController {
         var actions = OnboardingActions()
         actions.openSettings = { [weak self] in self?.openSettings() }
         actions.openTestPage = { [weak self] in self?.openTestPage() }
+#if os(macOS)
+        actions.closeWindow = { [weak self] in self?.closeWindow() }
+        actions.recheck = { [weak self] in self?.refreshMacState() }
+#endif
 
         let model = OnboardingModel(isReturnVisit: isReturnVisit,
                                     iosModernSettingsPath: modernPath,
@@ -111,25 +125,63 @@ class ViewController: PlatformViewController {
 #elseif os(macOS)
         // A comfortable default; the window is resizable and the content scrolls.
         preferredContentSize = NSSize(width: 480, height: 640)
+        // Refresh the instant the user tabs back from Safari after toggling it.
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(appBecameActive),
+            name: NSApplication.didBecomeActiveNotification, object: nil)
 #endif
     }
 
 #if os(macOS)
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidAppear() {
         super.viewDidAppear()
         refreshMacState()
+        startStatePolling()
+    }
+
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+        stopStatePolling()
+    }
+
+    @objc private func appBecameActive() {
+        refreshMacState()
+    }
+
+    // Poll while the window is open so enabling Map Path in Safari is reflected
+    // live (the system has no change notification for extension state).
+    private func startStatePolling() {
+        stopStatePolling()
+        statePollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+            self?.refreshMacState()
+        }
+    }
+
+    private func stopStatePolling() {
+        statePollTimer?.invalidate()
+        statePollTimer = nil
     }
 
     private func refreshMacState() {
         SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { [weak self] state, error in
             DispatchQueue.main.async {
+                guard let model = self?.model else { return }
                 if let error = error {
                     os_log(.error, log: log,
                            "Failed to read extension state: %{public}@", error.localizedDescription)
-                    self?.model?.macState = .unknown
-                    return
+                    return  // keep last known state — don't flip the UI on a transient error
                 }
-                self?.model?.macState = (state?.isEnabled == true) ? .enabled : .disabled
+                let newState: OnboardingModel.MacExtensionState = (state?.isEnabled == true) ? .enabled : .disabled
+                // Only mutate when the value actually changes; assigning an
+                // @Observable property notifies observers even for an equal
+                // value, which would re-render (flash) the window every poll.
+                if model.macState != newState {
+                    model.macState = newState
+                }
             }
         }
     }
@@ -146,6 +198,10 @@ class ViewController: PlatformViewController {
     private func openTestPage() {
         guard let testPageURL else { return }
         NSWorkspace.shared.open(testPageURL)
+    }
+
+    private func closeWindow() {
+        view.window?.close()
     }
 #elseif os(iOS)
     private func openSettings() {
@@ -180,11 +236,7 @@ private struct HomeScreen: View {
             VStack(spacing: 28) {
                 HeaderView(isReturnVisit: model.isReturnVisit)
 
-                if model.isReturnVisit {
-                    VerificationView(model: model)
-                } else {
-                    PrimaryActionsView(model: model)
-                }
+                primaryContent
 
                 MoreLinksView(model: model)
                 FooterView()
@@ -195,6 +247,27 @@ private struct HomeScreen: View {
             .padding(.vertical, 32)
         }
         .navigationTitle("")
+    }
+
+    @ViewBuilder
+    private var primaryContent: some View {
+#if os(macOS)
+        // Live state drives the macOS view: once enabled, show the all-set view
+        // regardless of first-run vs return.
+        if model.macState == .enabled {
+            AllSetView(model: model)
+        } else if model.isReturnVisit {
+            VerificationView(model: model)
+        } else {
+            PrimaryActionsView(model: model)
+        }
+#else
+        if model.isReturnVisit {
+            VerificationView(model: model)
+        } else {
+            PrimaryActionsView(model: model)
+        }
+#endif
     }
 }
 
@@ -226,31 +299,19 @@ private struct PrimaryActionsView: View {
         VStack(spacing: 14) {
 #if os(macOS)
             MacStatusView(state: model.macState)
-            if model.macState == .enabled {
-                // Already on — lead with verifying it works.
-                Button("Test it now") { model.actions.openTestPage() }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                Button("Open Safari Extensions Settings") { model.actions.openSettings() }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                Text("Map Path is on. Tap **Test it now** to confirm a map link opens in Apple Maps. If a site still opens Google or Waze, set that site's permission to **Always Allow**.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            } else {
-                // Not enabled (or status unknown) — lead with opening Settings.
-                Button("Open Safari Extensions Settings") { model.actions.openSettings() }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                Button("Test it now") { model.actions.openTestPage() }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                Text("In the Extensions tab, turn on **Map Path**, then choose **Always Allow on Every Website** when prompted.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
+            Button("Recheck") { model.actions.recheck() }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+            Button("Open Safari Extensions Settings") { model.actions.openSettings() }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            Button("Test it now") { model.actions.openTestPage() }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            Text("In the Extensions tab, turn on **Map Path**, then choose **Always Allow on Every Website** when prompted.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
 #elseif os(iOS)
             Button("Open Settings") { model.actions.openSettings() }
                 .buttonStyle(.borderedProminent)
@@ -275,6 +336,9 @@ private struct VerificationView: View {
         VStack(spacing: 14) {
 #if os(macOS)
             MacStatusView(state: model.macState)
+            Button("Recheck") { model.actions.recheck() }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
 #else
             Text("Setup complete? Tap below to test.")
                 .font(.headline)
@@ -304,6 +368,33 @@ private struct VerificationView: View {
 }
 
 #if os(macOS)
+private struct AllSetView: View {
+    let model: OnboardingModel
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Label("Map Path is enabled in Safari", systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+                .font(.headline)
+            Text("You're all set — map links will open in Apple Maps.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button("Test it now") { model.actions.openTestPage() }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            Button("Close") { model.actions.closeWindow() }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            Text("**Test it now** opens a sample page in Safari. The first time, Safari may ask for website access — choose **Always Allow on Every Website** (or set **All Websites: Allow**), or links won't open in Apple Maps yet.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 private struct MacStatusView: View {
     let state: OnboardingModel.MacExtensionState
 
