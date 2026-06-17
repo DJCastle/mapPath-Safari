@@ -100,6 +100,16 @@ run cp "$CONTAINER_SRC/AppDelegate-macOS.swift" "$REPO_ROOT/Map Path/macOS (App)
 run cp "$CONTAINER_SRC/LaunchScreen.storyboard" \
        "$REPO_ROOT/Map Path/iOS (App)/Base.lproj/LaunchScreen.storyboard"
 
+# Main storyboards — the onboarding UI is now SwiftUI hosted in ViewController
+# (see ViewController.swift). These storyboards keep only the app/window/scene
+# scaffold; the converter template's WKWebView and its `webView` outlet are
+# removed (the controller hosts a SwiftUI view instead), and the macOS window
+# is made resizable so the UI flexes to the window.
+run cp "$CONTAINER_SRC/iOS-Main.storyboard" \
+       "$REPO_ROOT/Map Path/iOS (App)/Base.lproj/Main.storyboard"
+run cp "$CONTAINER_SRC/macOS-Main.storyboard" \
+       "$REPO_ROOT/Map Path/macOS (App)/Base.lproj/Main.storyboard"
+
 # LaunchBackground colorset — the named color the launch storyboard references
 # for its background (light cream paper / dark slate to mirror the onboarding).
 run mkdir -p "$XCODE_CATALOG/LaunchBackground.colorset"
