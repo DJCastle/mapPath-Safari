@@ -59,13 +59,25 @@
       return { daddr: place(dest), saddr };
     }
 
-    // Path-style directions: /maps/dir/<origin>/<destination>[/@...]. The
-    // destination is the last named segment; [^/@] stops us grabbing @coords.
-    const dir = u.pathname.match(/\/maps\/dir\/([^/]*)\/([^/@]+)/);
+    // Path-style directions: /maps/dir/<origin>/<destination>[/@viewport].
+    const dir = u.pathname.match(/\/maps\/dir\/(.+)/);
     if (dir) {
-      const decode = (s) => decodeURIComponent(s.replace(/\+/g, " "));
-      const saddr = dir[1] ? place(decode(dir[1])) : undefined;
-      return { saddr, daddr: place(decode(dir[2])) };
+      // Waypoint segments end at the @coords viewport suffix; a trailing
+      // slash leaves an empty last segment we drop.
+      let segs = dir[1].split("/");
+      const at = segs.findIndex((s) => s.startsWith("@"));
+      if (at !== -1) segs = segs.slice(0, at);
+      while (segs.length && segs[segs.length - 1] === "") segs.pop();
+      // Apple Maps URLs can't express intermediate stops. Rewriting a
+      // multi-stop route would silently drop stops and route to the wrong
+      // destination — worse than the original — so leave it untouched.
+      if (segs.length > 2) return null;
+      if (segs.length === 2) {
+        const decode = (s) => decodeURIComponent(s.replace(/\+/g, " "));
+        const saddr = segs[0] ? place(decode(segs[0])) : undefined;
+        return { saddr, daddr: place(decode(segs[1])) };
+      }
+      // A single segment falls through to the /maps/dir/<query> handling below.
     }
 
     // Explicit query params.
@@ -175,13 +187,20 @@
   }
 
   // ---- Link rewriting -----------------------------------------------------
+  // Any parse failure — malformed percent-encoding throwing inside
+  // decodeURIComponent, a hostile href, a parser bug — must leave the link
+  // untouched rather than throw: one bad link must never break rewriting for
+  // the rest of the page or abort a MutationObserver batch.
   function toAppleMaps(href) {
-    let u;
     try {
-      u = new URL(href, location.href);
+      return parseLink(href);
     } catch {
       return null;
     }
+  }
+
+  function parseLink(href) {
+    const u = new URL(href, location.href); // throws on invalid hrefs — caught in toAppleMaps
     if (u.hostname.toLowerCase().endsWith("maps.apple.com")) return null; // already Apple Maps
 
     // geo: URIs — geo:lat,lng[;crs/u=..][?q=label]. No host, so handle before classify.

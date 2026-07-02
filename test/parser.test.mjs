@@ -89,6 +89,8 @@ const cases = [
   ["geo 0,0?q label only", "geo:0,0?q=Plymouth+Rock,+Pilgrim+Memorial+State+Park", A + "q=" + enc("Plymouth Rock, Pilgrim Memorial State Park")],
 
   // ----- intentionally LEFT untouched -----
+  ["Google malformed percent-encoding (must not throw / break the page)", "https://www.google.com/maps/place/100%zz-Main+St", LEFT],
+  ["Google multi-stop directions (Apple Maps can't express stops)", "https://www.google.com/maps/dir/Boston,+MA/Hartford,+CT/New+York,+NY/@41.5,-72.7,9z", LEFT],
   ["Apple Maps share (address+ll+q) pass-through", "https://maps.apple.com/?address=1+Lincoln+Memorial+Cir+NW,+Washington,+DC&ll=38.8893,-77.0502&q=Lincoln+Memorial", LEFT],
   ["Google app shortener (not followed)", "https://maps.app.goo.gl/8xQqA6Yz2bExmp", LEFT],
   ["Old goo.gl/maps shortener", "https://goo.gl/maps/Xv9bExmpLE2", LEFT],
