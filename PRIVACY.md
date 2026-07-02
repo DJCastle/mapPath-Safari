@@ -22,6 +22,11 @@ rewrites them to open in Apple Maps instead.
 
 All link detection and rewriting happens locally, in the page, in real time.
 
+The companion app (the one you open to set the extension up) stores a single
+on-device yes/no value — whether you've launched it before — so the setup
+walkthrough only shows once. It contains no personal data and never leaves
+your device.
+
 ## Data sharing
 
 Because Map Path collects no data, there is no data to share, sell, or disclose
