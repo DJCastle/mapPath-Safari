@@ -302,8 +302,9 @@ private struct PrimaryActionsView: View {
             Button("Recheck") { model.actions.recheck() }
                 .buttonStyle(.borderless)
                 .controlSize(.small)
+            ImportantSetupCallout(model: model)
             Button("Open Safari Extensions Settings") { model.actions.openSettings() }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
                 .controlSize(.large)
             Button("Test it now") { model.actions.openTestPage() }
                 .buttonStyle(.bordered)
@@ -313,13 +314,14 @@ private struct PrimaryActionsView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 #elseif os(iOS)
+            ImportantSetupCallout(model: model)
             Button("Open Settings") { model.actions.openSettings() }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
                 .controlSize(.large)
             Button("Test it now") { model.actions.openTestPage() }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-            Text("**Open Settings** jumps to Map Path — turn on **Allow Extension** and set **All Websites** to **Allow**. **Test it now** opens a page where a Google Maps link should open Apple Maps.")
+            Text("**Test it now** opens a page where a Google Maps link should open Apple Maps.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -452,24 +454,83 @@ private struct SetupStepsScreen: View {
 #if os(macOS)
                 Text("New to Safari extensions?")
                     .font(.title2.bold())
-                StepRow(1, "Open **Safari**.")
-                StepRow(2, "Choose **Safari ▸ Settings** (⌘,), then click **Extensions**.")
-                StepRow(3, "Check the box next to **Map Path**.")
-                StepRow(4, "When prompted about website access, choose **Always Allow on Every Website**.")
-#elseif os(iOS)
-                Text("Apple lets you — not us — grant extension permissions. If you skip a step, Safari keeps Map Path off and your links still open in Google, Waze, or the other map sites.")
+                Text("Map Path lives inside Safari, so Safari is where you switch it on. This button jumps straight to the right screen:")
                     .font(.callout)
                     .foregroundStyle(.secondary)
-                Text("3 steps in Settings")
-                    .font(.title2.bold())
-                if model.iosModernSettingsPath {
-                    StepRow(1, "In **Settings ▸ Apps ▸ Safari ▸ Extensions**, tap **Map Path** and turn on **Allow Extension**.")
-                } else {
-                    StepRow(1, "In **Settings ▸ Safari ▸ Extensions**, tap **Map Path** and turn on **Allow Extension**.")
+                Button {
+                    model.actions.openSettings()
+                } label: {
+                    Label("Open Safari Extensions Settings", systemImage: "safari")
+                        .frame(maxWidth: .infinity)
                 }
-                StepRow(2, "On the same screen, set **All Websites** to **Allow** (not Ask).")
-                StepRow(3, "Optional — turn on **Allow in Private Browsing** to cover Private tabs too.")
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                VStack(alignment: .leading, spacing: 10) {
+                    StepRow(1, "Click the button above — or, in Safari, choose **Safari ▸ Settings** (⌘,), then click **Extensions**.")
+                    SettingsMockCard(indented: true) {
+                        Text("Safari ▸ Settings… ▸ Extensions")
+                            .font(.subheadline)
+                    }
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    StepRow(2, "Check the box next to **Map Path**.")
+                    SettingsMockCard(indented: true) { MockCheckboxRow(label: "Map Path") }
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    StepRow(3, "When Safari asks about website access, choose **Always Allow on Every Website**.")
+                    SettingsMockCard(indented: true) { MockPromptButton(title: "Always Allow on Every Website") }
+                }
+#elseif os(iOS)
+                Text("For your safety, Apple makes you flip these switches yourself — no app can turn itself on.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+
+                Text("Find Map Path")
+                    .font(.title2.bold())
+                Button {
+                    model.actions.openSettings()
+                } label: {
+                    Label("Open the Settings app", systemImage: "arrow.up.forward.app")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                if model.iosModernSettingsPath {
+                    StepRow(1, "Tap **Apps** (near the bottom).")
+                    StepRow(2, "Tap **Safari**.")
+                    StepRow(3, "Tap **Extensions**, then **Map Path**.")
+                } else {
+                    StepRow(1, "Tap **Safari**.")
+                    StepRow(2, "Tap **Extensions**, then **Map Path**.")
+                }
+
+                Text("Flip these 3 switches")
+                    .font(.title2.bold())
+                VStack(alignment: .leading, spacing: 10) {
+                    StepRow(1, "Turn on **Allow Extension**.")
+                    SettingsMockCard(indented: true) { MockToggleRow(label: "Allow Extension") }
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    StepRow(2, "Set **All Websites** to **Allow** — not Ask. Most-missed step!")
+                    SettingsMockCard(indented: true) { MockDisclosureRow(label: "All Websites", value: "Allow") }
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    StepRow(3, "Optional: **Allow in Private Browsing**.")
+                    SettingsMockCard(indented: true) { MockToggleRow(label: "Allow in Private Browsing") }
+                }
 #endif
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("What you're looking for")
+                        .font(.headline)
+                    Image("SetupScreenshot")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 400)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.quaternary, lineWidth: 1))
+                        .accessibilityLabel("Annotated screenshot of the settings screen, with arrows marking the switches described in the steps above.")
+                }
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: 560, alignment: .leading)
             .frame(maxWidth: .infinity)
@@ -501,6 +562,136 @@ private struct StepRow: View {
                 .font(.body)
             Spacer(minLength: 0)
         }
+    }
+}
+
+// MARK: - Settings look-alike visuals
+
+/// Stylized, non-interactive recreation of the Settings UI a step refers to,
+/// shown under the step's text to reinforce it visually. Drawn natively rather
+/// than embedded as screenshots so it follows dark/light mode and Dynamic Type
+/// and doesn't go stale when the OS redesigns Settings.
+private struct SettingsMockCard<Content: View>: View {
+    let indented: Bool
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        content
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .frame(maxWidth: 400, alignment: .leading)
+            .background(.fill.tertiary, in: RoundedRectangle(cornerRadius: 10))
+            .allowsHitTesting(false)
+            // Decorative: the step text above carries the same meaning for VoiceOver.
+            .accessibilityHidden(true)
+            .padding(.leading, indented ? 36 : 0) // clear of the step-number column
+    }
+}
+
+/// "Allow Extension"-style row with a green switch locked ON.
+private struct MockToggleRow: View {
+    let label: String
+
+    var body: some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Toggle("", isOn: .constant(true))
+                .labelsHidden()
+#if os(macOS)
+                .toggleStyle(.switch)
+#endif
+                .tint(.green)
+        }
+        .font(.subheadline)
+    }
+}
+
+/// "All Websites — Allow ›"-style disclosure row.
+private struct MockDisclosureRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Text(value)
+                .foregroundStyle(.secondary)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .font(.subheadline)
+    }
+}
+
+/// macOS extensions-list row with its checkbox ticked.
+private struct MockCheckboxRow: View {
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.square.fill")
+                .foregroundStyle(.white, .blue)
+            Text(label)
+            Spacer()
+        }
+        .font(.subheadline)
+    }
+}
+
+/// The button to pick in Safari's website-access prompt.
+private struct MockPromptButton: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(Capsule().fill(.blue))
+    }
+}
+
+/// First-run attention banner. Apple's HIG reserves red for destructive and
+/// error states, so the required-setup flag uses the warning color (orange)
+/// with the screen's single prominent button leading to the steps.
+private struct ImportantSetupCallout: View {
+    let model: OnboardingModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label {
+                Text("Important — Map Path is **off** until you flip 3 switches in \(settingsPlace).")
+                    .font(.callout.weight(.medium))
+                    .multilineTextAlignment(.leading)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+            }
+            NavigationLink {
+                SetupStepsScreen(model: model)
+            } label: {
+                Label("Show me the 3 steps", systemImage: "list.number")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(.orange.opacity(0.35), lineWidth: 1))
+    }
+
+    private var settingsPlace: String {
+#if os(macOS)
+        "Safari's settings"
+#else
+        "the Settings app"
+#endif
     }
 }
 

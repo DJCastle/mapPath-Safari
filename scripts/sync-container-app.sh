@@ -150,6 +150,16 @@ run cp "$CONTAINER_SRC/Assets.xcassets/LaunchMapBackground.imageset/LaunchBg-iph
 run cp "$CONTAINER_SRC/Assets.xcassets/LaunchMapBackground.imageset/LaunchBg-ipad@2x.png" \
        "$XCODE_CATALOG/LaunchMapBackground.imageset/LaunchBg-ipad@2x.png"
 
+# SetupScreenshot imageset — annotated Settings screenshots (arrows on the
+# exact switches) shown on the Set-up steps screen. Device-idiom variants:
+# iPhone, iPad, and Mac each get their own platform's capture. Same source
+# images as the website support page's illustrated guide.
+run mkdir -p "$XCODE_CATALOG/SetupScreenshot.imageset"
+for f in Contents.json setup-iphone@2x.png setup-ipad@2x.png setup-mac@2x.png; do
+  run cp "$CONTAINER_SRC/Assets.xcassets/SetupScreenshot.imageset/$f" \
+         "$XCODE_CATALOG/SetupScreenshot.imageset/$f"
+done
+
 # Hero icon shown in Main.html — resize from the .icon source to 512x512.
 run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"
 
