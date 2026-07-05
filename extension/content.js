@@ -10,7 +10,7 @@
   // Open Location Code (Plus Code), full or short-with-locality:
   // "87G8Q2XQ+XF" or "Q2XQ+XF Las Vegas". The 20-char OLC alphabet excludes
   // vowels and lookalikes, so ordinary place names don't match.
-  const PLUS_CODE_RE = /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,}(\s|$)/i;
+  const PLUS_CODE_RE = /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,}([\s,]|$)/i;
   function asCoords(s) {
     if (!s) return null;
     const m = COORD_RE.exec(s);
@@ -218,8 +218,9 @@
     // support.waze.com/search?q=... and turn a help-center search into an
     // Apple Maps search — a strictly worse link.
     const isWazeHost = host === "waze.com" || host === "www.waze.com" || host === "ul.waze.com";
-    const isWazeMapPath = path === "/ul" || path.startsWith("/ul/") ||
-      path.startsWith("/live-map") || path === "/ll" || path.startsWith("/ll/");
+    // Live-map share links can carry a locale prefix (waze.com/en/live-map/,
+    // /en-US/ul) — allow one optional segment before the map path.
+    const isWazeMapPath = /^\/(?:[a-z]{2}(?:-[a-z]{2,4})?\/)?(?:ul|live-map|ll)(?:\/|$)/.test(path);
     if (isWazeHost && isWazeMapPath) return fromWaze;
 
     if ((host === "bing.com" || host.endsWith(".bing.com")) && path.startsWith("/maps")) return fromBing;
@@ -261,7 +262,10 @@
       const target = u.searchParams.get("q") || u.searchParams.get("url");
       if (!target) return null;
       const inner = new URL(target); // absolute or bust — throws are caught above
-      if (isAppleMapsHost(inner.hostname.toLowerCase())) return inner.href;
+      // Lift out only a clean https Apple Maps link; oddities (http, userinfo)
+      // fall through to parseLink, which passes Apple hosts through untouched.
+      if (isAppleMapsHost(inner.hostname.toLowerCase()) &&
+          inner.protocol === "https:" && !inner.username) return inner.href;
       return parseLink(inner.href);
     }
 

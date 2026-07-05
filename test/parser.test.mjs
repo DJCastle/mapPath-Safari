@@ -113,6 +113,10 @@ const cases = [
   ["NPS directions page (not a map link)", "https://www.nps.gov/stli/planyourvisit/directions.htm", LEFT],
   ["here.com substring trap (atmosphere.com)", "https://atmosphere.com/maps?q=not-here-maps", LEFT],
   ["Waze help-center search (not a map link)", "https://support.waze.com/hc/search?q=account+help", LEFT],
+  ["Waze locale-prefixed live-map (share dialog)", "https://www.waze.com/en/live-map/directions?to=ll.39.8118,-77.2311", A + "daddr=" + enc("39.8118,-77.2311")],
+  ["Waze locale-region-prefixed ul", "https://www.waze.com/en-US/ul?ll=38.8910500%2C-77.0479700", A + "ll=38.89105,-77.04797"],
+  ["Google Plus Code comma-adjacent locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF,Las+Vegas/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484"],
+  ["Wrapped http (non-https) Apple Maps link — left alone", "https://www.google.com/url?q=http%3A%2F%2Fmaps.apple.com%2F%3Fll%3D38.6%2C-90.1", LEFT],
   ["HERE corporate-site search (not a map link)", "https://www.here.com/search?q=careers", LEFT],
 ];
 
