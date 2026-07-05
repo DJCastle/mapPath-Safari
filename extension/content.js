@@ -187,15 +187,22 @@
   // ---- Host classification (hostname-based, not substring) ----------------
   // Substring matching ("here.com" inside "sphere.com") would mis-fire, so we
   // classify on the parsed hostname + path instead.
+
+  // TLD shape is anchored: google.com, google.de, google.co.uk — but not
+  // google.evil.com (a dot-accepting class would match lookalike domains).
+  function isGoogleHost(host) {
+    return host === "maps.google.com" || /(^|\.)google\.(com|[a-z]{2,3})(\.[a-z]{2})?$/.test(host);
+  }
+
+  function isAppleMapsHost(host) {
+    return host === "maps.apple.com" || host.endsWith(".maps.apple.com");
+  }
+
   function classify(u) {
     const host = u.hostname.toLowerCase();
     const path = u.pathname.toLowerCase();
 
-    // TLD shape is anchored: google.com, google.de, google.co.uk — but not
-    // google.evil.com (the old [a-z.]+ class accepted dots and matched
-    // lookalike domains).
-    const isGoogleHost = host === "maps.google.com" || /(^|\.)google\.(com|[a-z]{2,3})(\.[a-z]{2})?$/.test(host);
-    if (host === "maps.google.com" || (isGoogleHost && path.startsWith("/maps"))) return fromGoogle;
+    if (host === "maps.google.com" || (isGoogleHost(host) && path.startsWith("/maps"))) return fromGoogle;
 
     // Waze: only its map surfaces. A bare host match would also capture
     // support.waze.com/search?q=... and turn a help-center search into an
@@ -233,7 +240,20 @@
 
   function parseLink(href) {
     const u = new URL(href, location.href); // throws on invalid hrefs — caught in toAppleMaps
-    if (u.hostname.toLowerCase().endsWith("maps.apple.com")) return null; // already Apple Maps
+    const host = u.hostname.toLowerCase();
+    if (isAppleMapsHost(host)) return null; // already Apple Maps
+
+    // Google redirect wrappers (Gmail web, Docs): google.com/url?q=<target>.
+    // The target rides inside the URL itself — no network needed to unwrap.
+    // Rewrite only when the target is a map link we'd rewrite anyway, or lift
+    // out a wrapped Apple Maps link; any other wrapped link is left alone.
+    if (isGoogleHost(host) && u.pathname === "/url") {
+      const target = u.searchParams.get("q") || u.searchParams.get("url");
+      if (!target) return null;
+      const inner = new URL(target); // absolute or bust — throws are caught above
+      if (isAppleMapsHost(inner.hostname.toLowerCase())) return inner.href;
+      return parseLink(inner.href);
+    }
 
     // geo: URIs — geo:lat,lng[;crs/u=..][?q=label]. No host, so handle before classify.
     if (u.protocol === "geo:") {

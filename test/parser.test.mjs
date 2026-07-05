@@ -91,6 +91,11 @@ const cases = [
   ["HERE ?q", "https://wego.here.com/?q=Arlington+National+Cemetery", A + "q=" + enc("Arlington National Cemetery")],
   ["HERE q + map center — sll anchors the search", "https://wego.here.com/?map=38.8977,-77.0365,16,normal&q=White+House", A + "q=" + enc("White House") + "&sll=38.8977,-77.0365"],
 
+  // ----- Google redirect wrappers (Gmail web, Docs) -----
+  ["Gmail-wrapped Google Maps link (google.com/url?q=)", "https://www.google.com/url?q=https%3A%2F%2Fmaps.google.com%2F%3Fq%3DGateway%2BArch%2C%2BSt.%2BLouis%2C%2BMO&sa=D&source=docs", A + "q=" + enc("Gateway Arch, St. Louis, MO")],
+  ["Wrapped Apple Maps link is lifted out of the redirect", "https://www.google.com/url?q=https%3A%2F%2Fmaps.apple.com%2F%3Fll%3D38.6247%2C-90.1848&sa=D", "https://maps.apple.com/?ll=38.6247,-90.1848"],
+  ["Wrapped non-map link — left alone", "https://www.google.com/url?q=https%3A%2F%2Fwww.nps.gov%2Fjeff%2F&sa=D", LEFT],
+
   // ----- geo: URI (Android intents / some web pages) -----
   ["geo coords + q label", "geo:43.8366,-103.6232?q=Crazy+Horse+Memorial", A + "ll=43.8366,-103.6232"],
   ["geo plain coords", "geo:40.1018,-75.4566", A + "ll=40.1018,-75.4566"],
