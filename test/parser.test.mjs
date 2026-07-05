@@ -81,6 +81,7 @@ const cases = [
   // ----- Bing Maps -----
   ["Bing share ?q + FORM", "https://www.bing.com/maps?q=Thomas+Jefferson+Memorial&FORM=HDRSC6", A + "q=" + enc("Thomas Jefferson Memorial")],
   ["Bing cp center (encoded tilde) + lvl", "https://www.bing.com/maps?cp=38.7293%7E-77.0861&lvl=16.0&style=r", A + "ll=38.7293,-77.0861"],
+  ["Bing q + cp center — sll anchors the search", "https://www.bing.com/maps?q=Washington+Monument&cp=38.8895%7E-77.0353&lvl=17", A + "q=" + enc("Washington Monument") + "&sll=38.8895,-77.0353"],
 
   // ----- HERE WeGo -----
   ["HERE map center + msg", "https://wego.here.com/?map=36.0160250,-114.7376790,15,normal&msg=Hoover%20Dam", A + "ll=36.016025,-114.737679"],

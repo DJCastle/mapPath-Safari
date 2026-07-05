@@ -145,19 +145,22 @@
   function fromBing(u) {
     const sp = u.searchParams;
     // Center: cp=lat~lng
+    let sll = null;
     const cp = sp.get("cp");
     if (cp) {
       const m = cp.match(/(-?\d+(?:\.\d+)?)~(-?\d+(?:\.\d+)?)/);
-      if (m) {
-        const c = asCoords(m[1] + "," + m[2]);
-        if (c) return { ll: c };
-      }
+      if (m) sll = asCoords(m[1] + "," + m[2]);
     }
     const q = sp.get("q") || sp.get("where1");
     if (q) {
       const c = asCoords(q);
-      return c ? { ll: c } : { q };
+      if (c) return { ll: c };
+      // Name + map center: keep the name for the place card, anchor the
+      // search at the center so an ambiguous name resolves to the linked
+      // place rather than the match nearest to the user.
+      return sll ? { q, sll } : { q };
     }
+    if (sll) return { ll: sll };
     return null;
   }
 
