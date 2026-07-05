@@ -519,18 +519,20 @@ private struct SetupStepsScreen: View {
                     SettingsMockCard(indented: true) { MockToggleRow(label: "Allow in Private Browsing") }
                 }
 #endif
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("What you're looking for")
-                        .font(.headline)
+                DisclosureGroup {
                     Image("SetupScreenshot")
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: 400)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.quaternary, lineWidth: 1))
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 10)
                         .accessibilityLabel("Annotated screenshot of the settings screen, with arrows marking the switches described in the steps above.")
+                } label: {
+                    Label("See a sample of the finished screen", systemImage: "photo")
+                        .font(.body.weight(.medium))
                 }
-                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: 560, alignment: .leading)
             .frame(maxWidth: .infinity)
