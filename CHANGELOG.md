@@ -3,10 +3,10 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.0.0] - 2026-06-10
+## [1.0.0] - 2026-07-05
 
 Initial public release on the App Store for Safari on macOS, iOS,
-iPadOS, and visionOS.
+iPadOS, and visionOS. (Submitted to App Review 2026-07-05.)
 
 ### Web extension
 
@@ -16,10 +16,31 @@ iPadOS, and visionOS.
   and an `action` popup.
 - Per-source link parsers for Google Maps, Waze, Bing Maps, HERE WeGo,
   `geo:` URIs, and raw coordinates. Hostname-based classification
-  avoids the substring trap (`atmosphere.com` vs `here.com`).
+  avoids the substring trap (`atmosphere.com` vs `here.com`), the
+  Google/Apple host checks are TLD-anchored against lookalike domains,
+  and Waze/HERE only rewrite on their actual map surfaces — a
+  help-center search is never turned into a map link.
+- Named-place searches are **anchored to the link's own coordinates**
+  (`q=` + `sll=`) for Google, Bing, and HERE, so an ambiguous name
+  resolves to the place the link pointed at — not whichever match is
+  nearest to the user. (A "Statue of Liberty" link opens the New York
+  statue, not the Las Vegas replica.)
+- Google redirect wrappers from Gmail/Docs (`google.com/url?q=`) are
+  unwrapped locally — no network — and rewritten when the target is a
+  map link.
+- Plus Codes pin their accompanying coordinates instead of dead-ending
+  in a search Apple Maps can't answer; bare codes are left alone.
+- Every coordinate source is range-validated; a crafted `@999,999`
+  link is left untouched instead of becoming a broken URL. Multi-stop
+  routes, opaque `place_id:` queries, and shorteners are deliberately
+  left alone per the never-worse-link rule. Any parse failure leaves
+  just that one link untouched — one malformed link can't break
+  rewriting for the rest of the page.
 - Parser test harness (`test/parser.test.mjs`) — fake-DOM + `vm` runner
   asserting real-world link variations rewrite (or are intentionally
-  left alone). **28/28 passing.**
+  left alone). **50/50 passing**, plus a 29-link wild-harvest field
+  test (Wikipedia GeoHack, venue pages, vendor docs) verified against
+  real geography.
 - Single-layer transparent Safari toolbar icons (48/96/128/256/512),
   rendered from the canonical `app-icon/MapPath.icon` source.
 - Popup links to the marketing page and the support/FAQ page in addition
@@ -32,25 +53,25 @@ iPadOS, and visionOS.
   universal 1024. AppIcon PNGs flattened to opaque white so the
   large-icon validator (App Store error 90717) accepts them; the
   canonical source stays transparent for the Safari toolbar icons.
-- Container-app onboarding rewritten from the Apple converter template:
-  horizontal welcome hero, one-click "Quit & Open Safari Extensions
-  Settings" CTA on macOS, platform-specific step-by-step enablement
-  for iOS / iPadOS 26.5 and macOS 26.5, terse on-device explainer
-  near the footer.
-- **Adaptive sizing across iPhone, iPad, and macOS** — typography and
-  layout scale per Apple HIG (15px body / 24px h1 on iPhone, 16px /
-  28px on iPad, 13px / 20px on the constrained macOS window), with
-  50-54pt minimum touch targets on iOS / iPadOS and `viewport-fit=cover`
-  + safe-area insets to respect the notch and home indicator.
-- **iOS / iPadOS action buttons**: primary "Open Settings" (jumps to
-  Map Path's iOS settings page via `UIApplication.openSettingsURLString`,
-  the closest public API permits) and secondary "I'll do this later"
-  (dismisses the onboarding cards, leaves a quiet "Map Path is
-  installed" view with a way back to the steps).
+- **Native SwiftUI onboarding** (NavigationStack hosted via
+  NS/UIHostingController; OS 26 deployment floor): one adaptive tree
+  serves iPhone, iPad, Mac, and Vision Pro with Dynamic Type, dark
+  mode, and platform-conditional content at compile time.
+- First-run welcome leads with an orange "Important — Map Path is off
+  until you flip 3 switches" callout into an illustrated Set-up steps
+  screen: a "Find Map Path" tap path (from wherever Apple's public
+  `openSettingsURLString` actually lands), the three switches each
+  shown as a native Settings look-alike card, and a tap-to-reveal
+  annotated sample screenshot (per-device asset: iPhone / iPad / Mac).
+- macOS shows **live extension state** (`SFSafariExtensionManager`,
+  polled while the window is open, refreshed on focus): a warning state
+  with setup CTAs flips to a green "you're all set" view with Test it
+  now once the extension is enabled in Safari.
+- Return visits get a compact verification view instead of the full
+  first-run walkthrough; "Test it now" opens the public test page for
+  a behavioral self-check on every platform.
 - `ViewController.swift` hardened: no force unwraps on launch path,
-  no force cast on the script-message body, error branches now log via
-  `os_log` instead of swallowing silently. iOS branch enables scrolling
-  as a graceful fallback for Dynamic Type or smaller devices.
+  error branches log via `os_log` instead of swallowing silently.
 - `AppDelegate` implements `applicationSupportsSecureRestorableState`
   to silence the macOS secure-coding warning.
 - macOS Info.plist sets `LSApplicationCategoryType =
@@ -58,11 +79,12 @@ iPadOS, and visionOS.
 
 ### Privacy
 
-- `PrivacyInfo.xcprivacy` at the repo root declares `NSPrivacyTracking
-  = false`, empty tracking domains, empty collected data, and empty
-  accessed required-reason APIs.
-- No analytics, no network calls of any kind from the extension, no
-  storage. Verifiable in source.
+- `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking = false`, empty
+  tracking domains, empty collected data, and a single required-reason
+  API entry: `UserDefaults` (reason CA92.1) for the container app's
+  one on-device "first launch" flag — the only value the app stores.
+- No analytics, no network calls of any kind, no data collection.
+  Verifiable in source.
 
 ### Project layout
 
@@ -82,11 +104,12 @@ iPadOS, and visionOS.
   sync script invokes to composite the transparent icon design onto an
   opaque white background at each required size; output has no alpha
   channel (App Store requirement for the large macOS icon).
-- App Store screenshots (4 per platform × Mac / iPhone / iPad) tracked
-  in `screenshots/` so they survive fresh-Mac rebuilds and don't live
-  only on the Desktop. Consistent story arc across platforms:
-  Onboarding → Conversion (Mac) or Settings (iOS, iPadOS) → Popup
-  (Mac) or long-press preview (iOS, iPadOS) → Apple Maps.
+- App Store screenshots (4–5 per platform × Mac / iPhone / iPad)
+  tracked in `screenshots/` so they survive fresh-Mac rebuilds and
+  don't live only on the Desktop. Consistent story arc across
+  platforms: onboarding welcome → Settings permission proof →
+  rewrite proof (Mac hover with magnified status bar / iOS long-press
+  preview) → Apple Maps payoff on Liberty Island.
 - Public marketing/legal/test/support pages live in the
   `codeCraftedApps` repo at `codecraftedapps.com/extensions/map-path/`.
 
