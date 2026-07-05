@@ -6,6 +6,11 @@
   // ---- Coordinate parsing -------------------------------------------------
   // A "lat,lng" string with sane ranges. Returns "lat,lng" (normalized) or null.
   const COORD_RE = /^\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/;
+
+  // Open Location Code (Plus Code), full or short-with-locality:
+  // "87G8Q2XQ+XF" or "Q2XQ+XF Las Vegas". The 20-char OLC alphabet excludes
+  // vowels and lookalikes, so ordinary place names don't match.
+  const PLUS_CODE_RE = /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,}(\s|$)/i;
   function asCoords(s) {
     if (!s) return null;
     const m = COORD_RE.exec(s);
@@ -93,13 +98,18 @@
     if (q) {
       const c = asCoords(q);
       if (c) return { ll: c };
+      const vp = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      const sll = vp ? asCoords(vp[1] + "," + vp[2]) : null;
+      // Plus Codes ("87G8Q2XQ+XF"): Apple Maps can't resolve them, so a q=
+      // search dead-ends at No Results. The @coords are the same location —
+      // pin them directly; without coords, leave the original link (Google
+      // resolves the code, we can't).
+      if (PLUS_CODE_RE.test(q)) return sll ? { ll: sll } : null;
       // A named place plus @lat,lng viewport coords: keep the name for the
       // place card but anchor the search at those coordinates (sll), so an
       // ambiguous name resolves to the linked place — not whichever match is
       // nearest to the user. (A "Statue of Liberty" link must open the New
       // York statue, not the Las Vegas replica.)
-      const vp = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-      const sll = vp ? asCoords(vp[1] + "," + vp[2]) : null;
       return sll ? { q, sll } : { q };
     }
 
