@@ -22,10 +22,10 @@ Consistent story arc across all three platforms:
 | `macos-3.png` | Safari hovering a Google Maps link on the test page; zoom-inset callout magnifies the status-bar `maps.apple.com/?q=...&sll=...` URL (rewrite proof) |
 | `macos-4.png` | Map Path toolbar popup (privacy bullets) open over the test page |
 | `macos-5.png` | Apple Maps on Liberty Island after the click (the payoff; account avatar retouched out) |
-| `iphone-1.png` | Container app onboarding (iOS) |
-| `iphone-2.png` | Settings → Apps → Safari → Extensions → Map Path showing the extension enabled with All Websites allowed (permission proof) |
-| `iphone-3.png` | Safari long-press preview on a Google Maps link; preview card shows `maps.apple.com/...` (rewrite proof) |
-| `iphone-4.png` | Apple Maps showing Statue of Liberty after the tap (the payoff) |
+| `iphone-1.png` | First-run welcome with the orange "Important — 3 switches" callout (2026-07-04 set, NYC sim location) |
+| `iphone-2.png` | Settings → Map Path page: Allow Extension on, Private Browsing on, All Websites: Allow (permission proof; clean, unannotated) |
+| `iphone-3.png` | Safari long-press preview on the Statue of Liberty link; preview card shows the real NYC statue via `sll` (rewrite proof) |
+| `iphone-4.png` | Apple Maps on Liberty Island after the tap (the payoff) |
 | `ipad-1.png` | Container app onboarding (iPadOS) |
 | `ipad-2.png` | iPad Settings → Apps → Map Path showing the extension enabled with All Websites allowed |
 | `ipad-3.png` | Safari long-press preview; preview card shows `maps.apple.com/...` |
