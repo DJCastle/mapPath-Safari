@@ -26,10 +26,10 @@ Consistent story arc across all three platforms:
 | `iphone-2.png` | Settings → Map Path page: Allow Extension on, Private Browsing on, All Websites: Allow (permission proof; clean, unannotated) |
 | `iphone-3.png` | Safari long-press preview on the Statue of Liberty link; preview card shows the real NYC statue via `sll` (rewrite proof) |
 | `iphone-4.png` | Apple Maps on Liberty Island after the tap (the payoff) |
-| `ipad-1.png` | Container app onboarding (iPadOS) |
-| `ipad-2.png` | iPad Settings → Apps → Map Path showing the extension enabled with All Websites allowed |
-| `ipad-3.png` | Safari long-press preview; preview card shows `maps.apple.com/...` |
-| `ipad-4.png` | Apple Maps showing Statue of Liberty (the payoff) |
+| `ipad-1.png` | First-run welcome with the orange "Important — 3 switches" callout (2026-07-04 set, NYC sim location) |
+| `ipad-2.png` | Settings split view → Map Path page: Allow Extension on, Private Browsing on, All Websites: Allow (clean, unannotated) |
+| `ipad-3.png` | Safari long-press preview on the Statue of Liberty link with the maps.apple.com preview card |
+| `ipad-4.png` | Apple Maps on Liberty Island with the Statue of Liberty place card (the payoff) |
 
 ## Capture notes
 
