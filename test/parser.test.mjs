@@ -93,6 +93,8 @@ const cases = [
   ["HERE map center + msg", "https://wego.here.com/?map=36.0160250,-114.7376790,15,normal&msg=Hoover%20Dam", A + "ll=36.016025,-114.737679"],
   ["HERE ?q", "https://wego.here.com/?q=Arlington+National+Cemetery", A + "q=" + enc("Arlington National Cemetery")],
   ["HERE q + map center — sll anchors the search", "https://wego.here.com/?map=38.8977,-77.0365,16,normal&q=White+House", A + "q=" + enc("White House") + "&sll=38.8977,-77.0365"],
+  ["HERE share.here.com/l/ path share with label", "https://share.here.com/l/38.8899389,-77.0090505,United%20States%20Capitol?z=16", A + "ll=38.8899389,-77.0090505&q=" + enc("United States Capitol")],
+  ["HERE share.here.com/l/ path share, coords only", "https://share.here.com/l/36.016025,-114.737679", A + "ll=36.016025,-114.737679"],
 
   // ----- Google redirect wrappers (Gmail web, Docs) -----
   ["Gmail-wrapped Google Maps link (google.com/url?q=)", "https://www.google.com/url?q=https%3A%2F%2Fmaps.google.com%2F%3Fq%3DGateway%2BArch%2C%2BSt.%2BLouis%2C%2BMO&sa=D&source=docs", A + "q=" + enc("Gateway Arch, St. Louis, MO")],
@@ -115,6 +117,8 @@ const cases = [
   ["Waze help-center search (not a map link)", "https://support.waze.com/hc/search?q=account+help", LEFT],
   ["Waze locale-prefixed live-map (share dialog)", "https://www.waze.com/en/live-map/directions?to=ll.39.8118,-77.2311", A + "daddr=" + enc("39.8118,-77.2311")],
   ["Waze locale-region-prefixed ul", "https://www.waze.com/en-US/ul?ll=38.8910500%2C-77.0479700", A + "ll=38.89105,-77.04797"],
+  ["Waze legacy livemap lat/lon (Wikipedia GeoHack)", "https://www.waze.com/livemap/?zoom=15&lat=38.8892686&lon=-77.0509287", A + "ll=38.8892686,-77.0509287"],
+  ["Google place_id-only query (opaque, Google-only) — left alone", "https://www.google.com/maps/place/?q=place_id:ChIJN1t_tDeuEmsRUsoyG83frY4", LEFT],
   ["Google Plus Code comma-adjacent locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF,Las+Vegas/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484"],
   ["Wrapped http (non-https) Apple Maps link — left alone", "https://www.google.com/url?q=http%3A%2F%2Fmaps.apple.com%2F%3Fll%3D38.6%2C-90.1", LEFT],
   ["HERE corporate-site search (not a map link)", "https://www.here.com/search?q=careers", LEFT],

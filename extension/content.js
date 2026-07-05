@@ -96,6 +96,10 @@
     }
 
     if (q) {
+      // Google's documented ?q=place_id:ChIJ... form — an opaque ID only
+      // Google can resolve. Searching the literal string in Apple Maps
+      // dead-ends, so leave the link alone (same rationale as shorteners).
+      if (/^place_id:/i.test(q)) return null;
       const c = asCoords(q);
       if (c) return { ll: c };
       const vp = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
@@ -135,6 +139,12 @@
     // the %2C, so a single asCoords call covers both forms).
     const ll = asCoords(sp.get("ll"));
     if (ll) return { ll };
+    // Legacy livemap form (Wikipedia's GeoHack emits it): ?lat=..&lon=..
+    const lat = sp.get("lat"), lon = sp.get("lon");
+    if (lat && lon) {
+      const c = asCoords(lat + "," + lon);
+      if (c) return { ll: c };
+    }
     // livemap "to=ll.lat,lng" — range-checked like every other coord source.
     const to = sp.get("to") || sp.get("navigate");
     if (to) {
@@ -176,6 +186,14 @@
 
   function fromHere(u) {
     const sp = u.searchParams;
+    // share.here.com/l/lat,lng[,label] — HERE's primary share format is
+    // path-based. The label (when present) rides as q, which Apple Maps
+    // treats as the pin's name alongside ll.
+    const l = u.pathname.match(/^\/l\/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,([^/]+))?/);
+    if (l) {
+      const c = asCoords(l[1] + "," + l[2]);
+      if (c) return l[3] ? { ll: c, q: decodeURIComponent(l[3]) } : { ll: c };
+    }
     // wego.here.com/?map=lat,lng,zoom,type
     let sll = null;
     const map = sp.get("map");
@@ -220,7 +238,7 @@
     const isWazeHost = host === "waze.com" || host === "www.waze.com" || host === "ul.waze.com";
     // Live-map share links can carry a locale prefix (waze.com/en/live-map/,
     // /en-US/ul) — allow one optional segment before the map path.
-    const isWazeMapPath = /^\/(?:[a-z]{2}(?:-[a-z]{2,4})?\/)?(?:ul|live-map|ll)(?:\/|$)/.test(path);
+    const isWazeMapPath = /^\/(?:[a-z]{2}(?:-[a-z]{2,4})?\/)?(?:ul|live-map|livemap|ll)(?:\/|$)/.test(path);
     if (isWazeHost && isWazeMapPath) return fromWaze;
 
     if ((host === "bing.com" || host.endsWith(".bing.com")) && path.startsWith("/maps")) return fromBing;
