@@ -86,6 +86,7 @@ const cases = [
   // ----- HERE WeGo -----
   ["HERE map center + msg", "https://wego.here.com/?map=36.0160250,-114.7376790,15,normal&msg=Hoover%20Dam", A + "ll=36.016025,-114.737679"],
   ["HERE ?q", "https://wego.here.com/?q=Arlington+National+Cemetery", A + "q=" + enc("Arlington National Cemetery")],
+  ["HERE q + map center — sll anchors the search", "https://wego.here.com/?map=38.8977,-77.0365,16,normal&q=White+House", A + "q=" + enc("White House") + "&sll=38.8977,-77.0365"],
 
   // ----- geo: URI (Android intents / some web pages) -----
   ["geo coords + q label", "geo:43.8366,-103.6232?q=Crazy+Horse+Memorial", A + "ll=43.8366,-103.6232"],

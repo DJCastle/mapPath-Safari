@@ -167,19 +167,20 @@
   function fromHere(u) {
     const sp = u.searchParams;
     // wego.here.com/?map=lat,lng,zoom,type
+    let sll = null;
     const map = sp.get("map");
     if (map) {
       const m = map.match(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-      if (m) {
-        const c = asCoords(m[1] + "," + m[2]);
-        if (c) return { ll: c };
-      }
+      if (m) sll = asCoords(m[1] + "," + m[2]);
     }
     const q = sp.get("q");
     if (q) {
       const c = asCoords(q);
-      return c ? { ll: c } : { q };
+      if (c) return { ll: c };
+      // Name + map center: same anchoring rationale as fromGoogle/fromBing.
+      return sll ? { q, sll } : { q };
     }
+    if (sll) return { ll: sll };
     return null;
   }
 
