@@ -182,11 +182,19 @@
     const isGoogleHost = host === "maps.google.com" || /(^|\.)google\.[a-z.]+$/.test(host);
     if (host === "maps.google.com" || (isGoogleHost && path.startsWith("/maps"))) return fromGoogle;
 
-    if (host === "waze.com" || host.endsWith(".waze.com")) return fromWaze;
+    // Waze: only its map surfaces. A bare host match would also capture
+    // support.waze.com/search?q=... and turn a help-center search into an
+    // Apple Maps search — a strictly worse link.
+    const isWazeHost = host === "waze.com" || host === "www.waze.com" || host === "ul.waze.com";
+    const isWazeMapPath = path === "/ul" || path.startsWith("/ul/") ||
+      path.startsWith("/live-map") || path === "/ll" || path.startsWith("/ll/");
+    if (isWazeHost && isWazeMapPath) return fromWaze;
 
     if ((host === "bing.com" || host.endsWith(".bing.com")) && path.startsWith("/maps")) return fromBing;
 
-    if (host === "here.com" || host === "wego.here.com" || host.endsWith(".here.com")) return fromHere;
+    // HERE: the map product lives on wego.here.com / share.here.com. The
+    // corporate site (www.here.com) also uses ?q= for site search — leave it.
+    if (host === "wego.here.com" || host === "share.here.com") return fromHere;
 
     // Opaque shorteners can't be resolved client-side without following them
     // (a network call we refuse to make). Best effort = leave them untouched.

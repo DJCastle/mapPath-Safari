@@ -97,6 +97,8 @@ const cases = [
   ["Old goo.gl/maps shortener", "https://goo.gl/maps/Xv9bExmpLE2", LEFT],
   ["NPS directions page (not a map link)", "https://www.nps.gov/stli/planyourvisit/directions.htm", LEFT],
   ["here.com substring trap (atmosphere.com)", "https://atmosphere.com/maps?q=not-here-maps", LEFT],
+  ["Waze help-center search (not a map link)", "https://support.waze.com/hc/search?q=account+help", LEFT],
+  ["HERE corporate-site search (not a map link)", "https://www.here.com/search?q=careers", LEFT],
 ];
 
 // --- run ----------------------------------------------------------------
