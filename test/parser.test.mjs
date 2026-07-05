@@ -61,8 +61,9 @@ const A = "https://maps.apple.com/?";
 const enc = encodeURIComponent;
 const cases = [
   // ----- Google Maps -----
-  ["Google place + @coords + data blob (address bar)", "https://www.google.com/maps/place/Statue+of+Liberty/@40.6892494,-74.0445004,17z/data=!3m1!4b1!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004!16zL20vMDdjeDQ", A + "q=" + enc("Statue of Liberty")],
-  ["Google search results URL", "https://www.google.com/maps/search/Lincoln+Memorial/@38.8892686,-77.0509287,17z", A + "q=" + enc("Lincoln Memorial")],
+  ["Google place + @coords + data blob (address bar) — sll anchors the search", "https://www.google.com/maps/place/Statue+of+Liberty/@40.6892494,-74.0445004,17z/data=!3m1!4b1!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004!16zL20vMDdjeDQ", A + "q=" + enc("Statue of Liberty") + "&sll=40.6892494,-74.0445004"],
+  ["Google search results URL — sll anchors the search", "https://www.google.com/maps/search/Lincoln+Memorial/@38.8892686,-77.0509287,17z", A + "q=" + enc("Lincoln Memorial") + "&sll=38.8892686,-77.0509287"],
+  ["Google place with out-of-range @coords — name only, no sll", "https://www.google.com/maps/place/Statue+of+Liberty/@999.0,-74.0445004,17z", A + "q=" + enc("Statue of Liberty")],
   ["Google maps.google ?q with city/state", "https://maps.google.com/?q=Gateway+Arch,+St.+Louis,+MO", A + "q=" + enc("Gateway Arch, St. Louis, MO")],
   ["Google dropped pin (empty place + @coords)", "https://www.google.com/maps/place//@39.9489668,-75.1500233,18z/data=!4m2!3m1!1s0x0:0x0", A + "ll=39.9489668,-75.1500233"],
   ["Google 'Directions' button dir//destination", "https://www.google.com/maps/dir//Mount+Rushmore+National+Memorial,+Keystone,+SD/@43.879102,-103.459067,15z", A + "daddr=" + enc("Mount Rushmore National Memorial, Keystone, SD")],

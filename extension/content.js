@@ -20,10 +20,11 @@
   // ---- Apple Maps URL builder --------------------------------------------
   // Build params by hand so the comma in `ll` / `sll` stays literal (Apple Maps
   // is happiest with ll=lat,lng rather than ll=lat%2Clng).
-  function appleURL({ ll, q, saddr, daddr }) {
+  function appleURL({ ll, q, sll, saddr, daddr }) {
     const parts = [];
     if (ll) parts.push("ll=" + ll);
     if (q) parts.push("q=" + encodeURIComponent(q));
+    if (sll) parts.push("sll=" + sll);
     if (saddr) parts.push("saddr=" + encodeURIComponent(saddr));
     if (daddr) parts.push("daddr=" + encodeURIComponent(daddr));
     if (!parts.length) return null;
@@ -91,7 +92,15 @@
 
     if (q) {
       const c = asCoords(q);
-      return c ? { ll: c } : { q };
+      if (c) return { ll: c };
+      // A named place plus @lat,lng viewport coords: keep the name for the
+      // place card but anchor the search at those coordinates (sll), so an
+      // ambiguous name resolves to the linked place — not whichever match is
+      // nearest to the user. (A "Statue of Liberty" link must open the New
+      // York statue, not the Las Vegas replica.)
+      const vp = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      const sll = vp ? asCoords(vp[1] + "," + vp[2]) : null;
+      return sll ? { q, sll } : { q };
     }
 
     // Bare coordinate params.
@@ -221,7 +230,7 @@
     if (!desc) return null;
     // Drop undefined keys so the builder stays clean.
     const clean = {};
-    for (const k of ["ll", "q", "saddr", "daddr"]) if (desc[k]) clean[k] = desc[k];
+    for (const k of ["ll", "q", "sll", "saddr", "daddr"]) if (desc[k]) clean[k] = desc[k];
     return appleURL(clean);
   }
 
