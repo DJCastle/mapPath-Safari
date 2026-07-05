@@ -17,10 +17,11 @@ Consistent story arc across all three platforms:
 
 | File | What it shows |
 |---|---|
-| `macos-1.png` | Container app onboarding window (Welcome to Map Path) |
-| `macos-2.png` | Safari hovering a Google Maps link on the test page; status bar at bottom shows `maps.apple.com/...` (rewrite proof) |
-| `macos-3.png` | Map Path toolbar popup open over the test page (the extension's UI surface) |
-| `macos-4.png` | Apple Maps showing Statue of Liberty after the click (the payoff) |
+| `macos-1.png` | First-run welcome with the orange "Important — 3 switches" callout (2026-07-04 set) |
+| `macos-2.png` | Green "Map Path is enabled — you're all set" state |
+| `macos-3.png` | Safari hovering a Google Maps link on the test page; zoom-inset callout magnifies the status-bar `maps.apple.com/?q=...&sll=...` URL (rewrite proof) |
+| `macos-4.png` | Map Path toolbar popup (privacy bullets) open over the test page |
+| `macos-5.png` | Apple Maps on Liberty Island after the click (the payoff; account avatar retouched out) |
 | `iphone-1.png` | Container app onboarding (iOS) |
 | `iphone-2.png` | Settings → Apps → Safari → Extensions → Map Path showing the extension enabled with All Websites allowed (permission proof) |
 | `iphone-3.png` | Safari long-press preview on a Google Maps link; preview card shows `maps.apple.com/...` (rewrite proof) |
@@ -32,8 +33,12 @@ Consistent story arc across all three platforms:
 
 ## Capture notes
 
-- macOS shots captured on Don's MacBook at retina resolution via
-  `⌘⇧4 SPACE click-window`.
+- macOS shots (2026-07-04 set) captured full-screen via `⌘⇧3` at
+  3024×1964 with the Dock hidden and desktop icons off, then cropped to
+  2880×1800 (center crop removes the menu bar; the Maps shot instead
+  crops vertically and downscales so the full window width survives).
+  The hover shot's zoom-inset callout and the Maps avatar retouch were
+  scripted (CoreGraphics; see session log 2026-07-04).
 - iOS / iPadOS shots captured in Simulator (iPhone 16 Pro Max,
   iPad Pro 13") via `File → Save Screen` (`⌘S`) so the image is exact
   device resolution with no simulator chrome.
