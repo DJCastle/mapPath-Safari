@@ -107,9 +107,14 @@
     const ll = asCoords(sp.get("ll"));
     if (ll) return { ll };
 
-    // Map-center coords in the path: @lat,lng,zoom
+    // Map-center coords in the path: @lat,lng,zoom — range-checked like
+    // every other coordinate source, so a crafted @999,999 link is left
+    // alone instead of becoming a broken Apple Maps URL.
     const at = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-    if (at) return { ll: at[1] + "," + at[2] };
+    if (at) {
+      const c = asCoords(at[1] + "," + at[2]);
+      if (c) return { ll: c };
+    }
 
     return null;
   }
@@ -120,11 +125,14 @@
     // the %2C, so a single asCoords call covers both forms).
     const ll = asCoords(sp.get("ll"));
     if (ll) return { ll };
-    // livemap "to=ll.lat,lng"
+    // livemap "to=ll.lat,lng" — range-checked like every other coord source.
     const to = sp.get("to") || sp.get("navigate");
     if (to) {
       const m = to.match(/ll\.(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-      if (m) return { daddr: m[1] + "," + m[2] };
+      if (m) {
+        const c = asCoords(m[1] + "," + m[2]);
+        if (c) return { daddr: c };
+      }
     }
     const q = sp.get("q");
     if (q) {

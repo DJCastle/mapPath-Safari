@@ -74,7 +74,9 @@ const cases = [
 
   // ----- Waze -----
   ["Waze app share ll (encoded comma)", "https://www.waze.com/ul?ll=38.8910500%2C-77.0479700&navigate=yes&zoom=17", A + "ll=38.89105,-77.04797"],
-  ["Waze live-map directions to=ll. + from", "https://www.waze.com/live-map/directions?to=ll.39.8118000,-77.2311000&from=ll.39.83,-77.23&at_load=yes", A + "daddr=" + enc("39.8118000,-77.2311000")],
+  ["Waze live-map directions to=ll. + from", "https://www.waze.com/live-map/directions?to=ll.39.8118000,-77.2311000&from=ll.39.83,-77.23&at_load=yes", A + "daddr=" + enc("39.8118,-77.2311")],
+  ["Google @coords out of range (crafted) — left alone", "https://www.google.com/maps/@999.0,999.0,15z", LEFT],
+  ["Waze to=ll out of range (crafted) — left alone", "https://www.waze.com/live-map/directions?to=ll.999.0,999.0", LEFT],
 
   // ----- Bing Maps -----
   ["Bing share ?q + FORM", "https://www.bing.com/maps?q=Thomas+Jefferson+Memorial&FORM=HDRSC6", A + "q=" + enc("Thomas Jefferson Memorial")],
