@@ -191,7 +191,10 @@
     const host = u.hostname.toLowerCase();
     const path = u.pathname.toLowerCase();
 
-    const isGoogleHost = host === "maps.google.com" || /(^|\.)google\.[a-z.]+$/.test(host);
+    // TLD shape is anchored: google.com, google.de, google.co.uk — but not
+    // google.evil.com (the old [a-z.]+ class accepted dots and matched
+    // lookalike domains).
+    const isGoogleHost = host === "maps.google.com" || /(^|\.)google\.(com|[a-z]{2,3})(\.[a-z]{2})?$/.test(host);
     if (host === "maps.google.com" || (isGoogleHost && path.startsWith("/maps"))) return fromGoogle;
 
     // Waze: only its map surfaces. A bare host match would also capture
