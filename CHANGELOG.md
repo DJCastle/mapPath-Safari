@@ -3,6 +3,26 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.1] - Unreleased
+
+Quality fast-follow to 1.0. No behavior changes to links that worked —
+only new coverage, richer fidelity, and a lighter bundle.
+
+- **HERE route shares rewrite to real directions.** A
+  `share.here.com/r/<from>/<to>` link becomes Apple Maps directions;
+  routes with more than two stops stay untouched (Apple Maps can't
+  express them — never-worse-link rule).
+- **Zoom levels carry over.** When a source link specifies one (Google
+  `@…z`/`?z=`, Waze `zoom=`, Bing `lvl=`, HERE `map=` / `?z=`), the
+  rewritten link opens Apple Maps at the same zoom.
+- **`geo:` labels are kept** — `geo:lat,lng?q=Name` now pins with its
+  name instead of an anonymous coordinate.
+- **Crisper toolbar icon** — exact 16px/32px sizes added.
+- Removed dead onboarding files (HTML-era resources unreferenced since
+  the SwiftUI rewrite) from both app bundles.
+- Declared exempt-only encryption (`ITSAppUsesNonExemptEncryption=NO`).
+- Parser harness: 47/47.
+
 ## [1.0.0] - 2026-07-05
 
 Initial public release on the App Store for Safari on macOS, iOS,
