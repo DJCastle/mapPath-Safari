@@ -4,7 +4,6 @@
 # generation, or any time the canonical files change.
 #
 # Canonical sources:
-#   container-app/Resources/         — Main.html, Script.js, Style.css
 #   app-icon/MapPath.icon/           — single-layer Icon Composer source
 #   PrivacyInfo.xcprivacy            — App Store privacy manifest (shared by both targets)
 #
@@ -79,13 +78,7 @@ run() {
     fi
 }
 
-mkdir -p "$XCODE_RESOURCES/Base.lproj"
 
-# Resources: Main.html (localized), Script.js, Style.css.
-run cp "$CONTAINER_SRC/Resources/Base.lproj/Main.html" \
-       "$XCODE_RESOURCES/Base.lproj/Main.html"
-run cp "$CONTAINER_SRC/Resources/Script.js" "$XCODE_RESOURCES/Script.js"
-run cp "$CONTAINER_SRC/Resources/Style.css" "$XCODE_RESOURCES/Style.css"
 
 # Hardened ViewController.swift (force-unwrap cleanup + os_log on error paths).
 run cp "$CONTAINER_SRC/ViewController.swift" "$XCODE_APP_DIR/ViewController.swift"
@@ -160,8 +153,6 @@ for f in Contents.json setup-iphone@2x.png setup-ipad@2x.png setup-mac@2x.png; d
          "$XCODE_CATALOG/SetupScreenshot.imageset/$f"
 done
 
-# Hero icon shown in Main.html — resize from the .icon source to 512x512.
-run sips -z 512 512 "$ICON_SRC/Assets/icon.png" --out "$XCODE_RESOURCES/Icon.png"
 
 # Asset catalog: build AppIcon.appiconset from the .icon source.
 # Why the legacy .appiconset format and not the newer .icon-as-asset?
@@ -215,6 +206,18 @@ if [[ -f "$INFO_PLIST_MAC" ]]; then
             "$INFO_PLIST_MAC"
     fi
 fi
+
+# ITSAppUsesNonExemptEncryption=NO on both app Info.plists — the app uses
+# only exempt encryption (HTTPS), and declaring it skips App Store Connect's
+# export-compliance question on every upload. Idempotent.
+INFO_PLIST_IOS="$REPO_ROOT/Map Path/iOS (App)/Info.plist"
+for plist in "$INFO_PLIST_MAC" "$INFO_PLIST_IOS"; do
+    if [[ -f "$plist" ]] && \
+       ! /usr/libexec/PlistBuddy -c "Print :ITSAppUsesNonExemptEncryption" "$plist" >/dev/null 2>&1; then
+        run /usr/libexec/PlistBuddy \
+            -c "Add :ITSAppUsesNonExemptEncryption bool false" "$plist"
+    fi
+done
 
 if [[ "$APPLY" -eq 1 ]]; then
     echo ""
