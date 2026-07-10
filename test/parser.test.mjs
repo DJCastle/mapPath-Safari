@@ -61,17 +61,17 @@ const A = "https://maps.apple.com/?";
 const enc = encodeURIComponent;
 const cases = [
   // ----- Google Maps -----
-  ["Google place + @coords + data blob (address bar) — sll anchors the search", "https://www.google.com/maps/place/Statue+of+Liberty/@40.6892494,-74.0445004,17z/data=!3m1!4b1!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004!16zL20vMDdjeDQ", A + "q=" + enc("Statue of Liberty") + "&sll=40.6892494,-74.0445004"],
-  ["Google search results URL — sll anchors the search", "https://www.google.com/maps/search/Lincoln+Memorial/@38.8892686,-77.0509287,17z", A + "q=" + enc("Lincoln Memorial") + "&sll=38.8892686,-77.0509287"],
+  ["Google place + @coords + data blob (address bar) — sll anchors the search", "https://www.google.com/maps/place/Statue+of+Liberty/@40.6892494,-74.0445004,17z/data=!3m1!4b1!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004!16zL20vMDdjeDQ", A + "q=" + enc("Statue of Liberty") + "&sll=40.6892494,-74.0445004&z=17"],
+  ["Google search results URL — sll anchors the search", "https://www.google.com/maps/search/Lincoln+Memorial/@38.8892686,-77.0509287,17z", A + "q=" + enc("Lincoln Memorial") + "&sll=38.8892686,-77.0509287&z=17"],
   ["Google place with out-of-range @coords — name only, no sll", "https://www.google.com/maps/place/Statue+of+Liberty/@999.0,-74.0445004,17z", A + "q=" + enc("Statue of Liberty")],
-  ["Google ccTLD (google.co.uk) place + @coords", "https://www.google.co.uk/maps/place/Big+Ben/@51.5007292,-0.1246254,17z", A + "q=" + enc("Big Ben") + "&sll=51.5007292,-0.1246254"],
-  ["Google Plus Code place + @coords — pin the coords (Apple can't resolve codes)", "https://www.google.com/maps/place/87G8Q2XQ%2BXF/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484"],
-  ["Google short Plus Code + locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF+Las+Vegas,+Nevada/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484"],
+  ["Google ccTLD (google.co.uk) place + @coords", "https://www.google.co.uk/maps/place/Big+Ben/@51.5007292,-0.1246254,17z", A + "q=" + enc("Big Ben") + "&sll=51.5007292,-0.1246254&z=17"],
+  ["Google Plus Code place + @coords — pin the coords (Apple can't resolve codes)", "https://www.google.com/maps/place/87G8Q2XQ%2BXF/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484&z=17"],
+  ["Google short Plus Code + locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF+Las+Vegas,+Nevada/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484&z=17"],
   ["Google Plus Code with no coords — left alone (search would dead-end)", "https://www.google.com/maps/place/87G8Q2XQ%2BXF", LEFT],
   ["Google lookalike domain (google.evil.com) — left alone", "https://google.evil.com/maps/place/Fake+Bank+Branch", LEFT],
   ["Google lookalike domain (maps.google.com.evil.net) — left alone", "https://maps.google.com.evil.net/maps/place/Fake+Bank+Branch", LEFT],
   ["Google maps.google ?q with city/state", "https://maps.google.com/?q=Gateway+Arch,+St.+Louis,+MO", A + "q=" + enc("Gateway Arch, St. Louis, MO")],
-  ["Google dropped pin (empty place + @coords)", "https://www.google.com/maps/place//@39.9489668,-75.1500233,18z/data=!4m2!3m1!1s0x0:0x0", A + "ll=39.9489668,-75.1500233"],
+  ["Google dropped pin (empty place + @coords)", "https://www.google.com/maps/place//@39.9489668,-75.1500233,18z/data=!4m2!3m1!1s0x0:0x0", A + "ll=39.9489668,-75.1500233&z=18"],
   ["Google 'Directions' button dir//destination", "https://www.google.com/maps/dir//Mount+Rushmore+National+Memorial,+Keystone,+SD/@43.879102,-103.459067,15z", A + "daddr=" + enc("Mount Rushmore National Memorial, Keystone, SD")],
   ["Google ?q raw coords (shared pin)", "https://www.google.com/maps?q=29.4259671,-98.4861419", A + "ll=29.4259671,-98.4861419"],
   ["Google classic ?daddr full address", "https://maps.google.com/maps?daddr=Liberty+Bell+Center,+526+Market+St,+Philadelphia,+PA", A + "daddr=" + enc("Liberty Bell Center, 526 Market St, Philadelphia, PA")],
@@ -79,22 +79,24 @@ const cases = [
   ["Google dir origin + coordinate destination (keep directions)", "https://www.google.com/maps/dir/?api=1&origin=Washington+Monument&destination=38.8893%2C-77.0502", A + "saddr=" + enc("Washington Monument") + "&daddr=" + enc("38.8893,-77.0502")],
 
   // ----- Waze -----
-  ["Waze app share ll (encoded comma)", "https://www.waze.com/ul?ll=38.8910500%2C-77.0479700&navigate=yes&zoom=17", A + "ll=38.89105,-77.04797"],
+  ["Waze app share ll (encoded comma)", "https://www.waze.com/ul?ll=38.8910500%2C-77.0479700&navigate=yes&zoom=17", A + "ll=38.89105,-77.04797&z=17"],
   ["Waze live-map directions to=ll. + from", "https://www.waze.com/live-map/directions?to=ll.39.8118000,-77.2311000&from=ll.39.83,-77.23&at_load=yes", A + "daddr=" + enc("39.8118,-77.2311")],
   ["Google @coords out of range (crafted) — left alone", "https://www.google.com/maps/@999.0,999.0,15z", LEFT],
   ["Waze to=ll out of range (crafted) — left alone", "https://www.waze.com/live-map/directions?to=ll.999.0,999.0", LEFT],
 
   // ----- Bing Maps -----
   ["Bing share ?q + FORM", "https://www.bing.com/maps?q=Thomas+Jefferson+Memorial&FORM=HDRSC6", A + "q=" + enc("Thomas Jefferson Memorial")],
-  ["Bing cp center (encoded tilde) + lvl", "https://www.bing.com/maps?cp=38.7293%7E-77.0861&lvl=16.0&style=r", A + "ll=38.7293,-77.0861"],
-  ["Bing q + cp center — sll anchors the search", "https://www.bing.com/maps?q=Washington+Monument&cp=38.8895%7E-77.0353&lvl=17", A + "q=" + enc("Washington Monument") + "&sll=38.8895,-77.0353"],
+  ["Bing cp center (encoded tilde) + lvl", "https://www.bing.com/maps?cp=38.7293%7E-77.0861&lvl=16.0&style=r", A + "ll=38.7293,-77.0861&z=16"],
+  ["Bing q + cp center — sll anchors the search", "https://www.bing.com/maps?q=Washington+Monument&cp=38.8895%7E-77.0353&lvl=17", A + "q=" + enc("Washington Monument") + "&sll=38.8895,-77.0353&z=17"],
 
   // ----- HERE WeGo -----
-  ["HERE map center + msg", "https://wego.here.com/?map=36.0160250,-114.7376790,15,normal&msg=Hoover%20Dam", A + "ll=36.016025,-114.737679"],
+  ["HERE map center + msg", "https://wego.here.com/?map=36.0160250,-114.7376790,15,normal&msg=Hoover%20Dam", A + "ll=36.016025,-114.737679&z=15"],
   ["HERE ?q", "https://wego.here.com/?q=Arlington+National+Cemetery", A + "q=" + enc("Arlington National Cemetery")],
-  ["HERE q + map center — sll anchors the search", "https://wego.here.com/?map=38.8977,-77.0365,16,normal&q=White+House", A + "q=" + enc("White House") + "&sll=38.8977,-77.0365"],
-  ["HERE share.here.com/l/ path share with label", "https://share.here.com/l/38.8899389,-77.0090505,United%20States%20Capitol?z=16", A + "ll=38.8899389,-77.0090505&q=" + enc("United States Capitol")],
+  ["HERE q + map center — sll anchors the search", "https://wego.here.com/?map=38.8977,-77.0365,16,normal&q=White+House", A + "q=" + enc("White House") + "&sll=38.8977,-77.0365&z=16"],
+  ["HERE share.here.com/l/ path share with label", "https://share.here.com/l/38.8899389,-77.0090505,United%20States%20Capitol?z=16", A + "ll=38.8899389,-77.0090505&q=" + enc("United States Capitol") + "&z=16"],
   ["HERE share.here.com/l/ path share, coords only", "https://share.here.com/l/36.016025,-114.737679", A + "ll=36.016025,-114.737679"],
+  ["HERE share.here.com/r/ two-leg route -> directions", "https://share.here.com/r/38.8893,-77.0502,Lincoln%20Memorial/38.8899,-77.0091,United%20States%20Capitol?m=d", A + "saddr=" + enc("38.8893,-77.0502") + "&daddr=" + enc("38.8899,-77.0091")],
+  ["HERE share.here.com/r/ three-leg route — left alone", "https://share.here.com/r/38.88,-77.05/39.29,-76.61/40.44,-79.99", LEFT],
 
   // ----- Google redirect wrappers (Gmail web, Docs) -----
   ["Gmail-wrapped Google Maps link (google.com/url?q=)", "https://www.google.com/url?q=https%3A%2F%2Fmaps.google.com%2F%3Fq%3DGateway%2BArch%2C%2BSt.%2BLouis%2C%2BMO&sa=D&source=docs", A + "q=" + enc("Gateway Arch, St. Louis, MO")],
@@ -102,7 +104,7 @@ const cases = [
   ["Wrapped non-map link — left alone", "https://www.google.com/url?q=https%3A%2F%2Fwww.nps.gov%2Fjeff%2F&sa=D", LEFT],
 
   // ----- geo: URI (Android intents / some web pages) -----
-  ["geo coords + q label", "geo:43.8366,-103.6232?q=Crazy+Horse+Memorial", A + "ll=43.8366,-103.6232"],
+  ["geo coords + q label", "geo:43.8366,-103.6232?q=Crazy+Horse+Memorial", A + "ll=43.8366,-103.6232&q=" + enc("Crazy Horse Memorial")],
   ["geo plain coords", "geo:40.1018,-75.4566", A + "ll=40.1018,-75.4566"],
   ["geo 0,0?q label only", "geo:0,0?q=Plymouth+Rock,+Pilgrim+Memorial+State+Park", A + "q=" + enc("Plymouth Rock, Pilgrim Memorial State Park")],
 
@@ -117,9 +119,9 @@ const cases = [
   ["Waze help-center search (not a map link)", "https://support.waze.com/hc/search?q=account+help", LEFT],
   ["Waze locale-prefixed live-map (share dialog)", "https://www.waze.com/en/live-map/directions?to=ll.39.8118,-77.2311", A + "daddr=" + enc("39.8118,-77.2311")],
   ["Waze locale-region-prefixed ul", "https://www.waze.com/en-US/ul?ll=38.8910500%2C-77.0479700", A + "ll=38.89105,-77.04797"],
-  ["Waze legacy livemap lat/lon (Wikipedia GeoHack)", "https://www.waze.com/livemap/?zoom=15&lat=38.8892686&lon=-77.0509287", A + "ll=38.8892686,-77.0509287"],
+  ["Waze legacy livemap lat/lon (Wikipedia GeoHack)", "https://www.waze.com/livemap/?zoom=15&lat=38.8892686&lon=-77.0509287", A + "ll=38.8892686,-77.0509287&z=15"],
   ["Google place_id-only query (opaque, Google-only) — left alone", "https://www.google.com/maps/place/?q=place_id:ChIJN1t_tDeuEmsRUsoyG83frY4", LEFT],
-  ["Google Plus Code comma-adjacent locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF,Las+Vegas/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484"],
+  ["Google Plus Code comma-adjacent locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF,Las+Vegas/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484&z=17"],
   ["Wrapped http (non-https) Apple Maps link — left alone", "https://www.google.com/url?q=http%3A%2F%2Fmaps.apple.com%2F%3Fll%3D38.6%2C-90.1", LEFT],
   ["HERE corporate-site search (not a map link)", "https://www.here.com/search?q=careers", LEFT],
 ];

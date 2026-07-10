@@ -7,6 +7,14 @@
   // A "lat,lng" string with sane ranges. Returns "lat,lng" (normalized) or null.
   const COORD_RE = /^\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/;
 
+  // The services' web-mercator zoom scales map 1:1 onto Apple Maps' z=
+  // (2-21). Out-of-range or non-numeric values are dropped, not clamped.
+  function asZoom(s) {
+    if (!s) return null;
+    const z = parseFloat(s);
+    return isFinite(z) && z >= 2 && z <= 21 ? String(Math.round(z * 100) / 100) : null;
+  }
+
   // Open Location Code (Plus Code), full or short-with-locality:
   // "87G8Q2XQ+XF" or "Q2XQ+XF Las Vegas". The 20-char OLC alphabet excludes
   // vowels and lookalikes, so ordinary place names don't match.
@@ -25,13 +33,14 @@
   // ---- Apple Maps URL builder --------------------------------------------
   // Build params by hand so the comma in `ll` / `sll` stays literal (Apple Maps
   // is happiest with ll=lat,lng rather than ll=lat%2Clng).
-  function appleURL({ ll, q, sll, saddr, daddr }) {
+  function appleURL({ ll, q, sll, saddr, daddr, z }) {
     const parts = [];
     if (ll) parts.push("ll=" + ll);
     if (q) parts.push("q=" + encodeURIComponent(q));
     if (sll) parts.push("sll=" + sll);
     if (saddr) parts.push("saddr=" + encodeURIComponent(saddr));
     if (daddr) parts.push("daddr=" + encodeURIComponent(daddr));
+    if (z) parts.push("z=" + z);
     if (!parts.length) return null;
     return "https://maps.apple.com/?" + parts.join("&");
   }
@@ -102,19 +111,20 @@
       if (/^place_id:/i.test(q)) return null;
       const c = asCoords(q);
       if (c) return { ll: c };
-      const vp = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      const vp = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)z)?/);
       const sll = vp ? asCoords(vp[1] + "," + vp[2]) : null;
+      const z = asZoom((vp && vp[3]) || sp.get("z") || sp.get("zoom"));
       // Plus Codes ("87G8Q2XQ+XF"): Apple Maps can't resolve them, so a q=
       // search dead-ends at No Results. The @coords are the same location —
       // pin them directly; without coords, leave the original link (Google
       // resolves the code, we can't).
-      if (PLUS_CODE_RE.test(q)) return sll ? { ll: sll } : null;
+      if (PLUS_CODE_RE.test(q)) return sll ? { ll: sll, z } : null;
       // A named place plus @lat,lng viewport coords: keep the name for the
       // place card but anchor the search at those coordinates (sll), so an
       // ambiguous name resolves to the linked place — not whichever match is
       // nearest to the user. (A "Statue of Liberty" link must open the New
       // York statue, not the Las Vegas replica.)
-      return sll ? { q, sll } : { q };
+      return sll ? { q, sll, z } : { q };
     }
 
     // Bare coordinate params.
@@ -124,10 +134,10 @@
     // Map-center coords in the path: @lat,lng,zoom — range-checked like
     // every other coordinate source, so a crafted @999,999 link is left
     // alone instead of becoming a broken Apple Maps URL.
-    const at = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    const at = u.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)z)?/);
     if (at) {
       const c = asCoords(at[1] + "," + at[2]);
-      if (c) return { ll: c };
+      if (c) return { ll: c, z: asZoom(at[3] || sp.get("z") || sp.get("zoom")) };
     }
 
     return null;
@@ -137,13 +147,14 @@
     const sp = u.searchParams;
     // waze.com/ul?ll=lat,lng | ?ll=lat%2Clng (searchParams.get already decodes
     // the %2C, so a single asCoords call covers both forms).
+    const zw = asZoom(sp.get("zoom") || sp.get("z"));
     const ll = asCoords(sp.get("ll"));
-    if (ll) return { ll };
+    if (ll) return { ll, z: zw };
     // Legacy livemap form (Wikipedia's GeoHack emits it): ?lat=..&lon=..
     const lat = sp.get("lat"), lon = sp.get("lon");
     if (lat && lon) {
       const c = asCoords(lat + "," + lon);
-      if (c) return { ll: c };
+      if (c) return { ll: c, z: zw };
     }
     // livemap "to=ll.lat,lng" — range-checked like every other coord source.
     const to = sp.get("to") || sp.get("navigate");
@@ -171,6 +182,7 @@
       const m = cp.match(/(-?\d+(?:\.\d+)?)~(-?\d+(?:\.\d+)?)/);
       if (m) sll = asCoords(m[1] + "," + m[2]);
     }
+    const zb = asZoom(sp.get("lvl"));
     const q = sp.get("q") || sp.get("where1");
     if (q) {
       const c = asCoords(q);
@@ -178,9 +190,9 @@
       // Name + map center: keep the name for the place card, anchor the
       // search at the center so an ambiguous name resolves to the linked
       // place rather than the match nearest to the user.
-      return sll ? { q, sll } : { q };
+      return sll ? { q, sll, z: zb } : { q };
     }
-    if (sll) return { ll: sll };
+    if (sll) return { ll: sll, z: zb };
     return null;
   }
 
@@ -192,23 +204,39 @@
     const l = u.pathname.match(/^\/l\/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,([^/]+))?/);
     if (l) {
       const c = asCoords(l[1] + "," + l[2]);
-      if (c) return l[3] ? { ll: c, q: decodeURIComponent(l[3]) } : { ll: c };
+      const zl = asZoom(sp.get("z"));
+      if (c) return l[3] ? { ll: c, q: decodeURIComponent(l[3]), z: zl } : { ll: c, z: zl };
+    }
+    // share.here.com/r/<from>/<to> — HERE's path-based directions share.
+    // Each leg is lat,lng[,label]. More than two legs is a multi-stop route
+    // Apple Maps can't express, so it's left untouched.
+    const r = u.pathname.match(/^\/r\/(.+)/);
+    if (r) {
+      const legs = r[1].split("/").filter(Boolean);
+      if (legs.length === 2) {
+        const coords = legs.map((leg) => {
+          const m = leg.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+          return m ? asCoords(m[1] + "," + m[2]) : null;
+        });
+        if (coords[0] && coords[1]) return { saddr: coords[0], daddr: coords[1] };
+      }
+      return null;
     }
     // wego.here.com/?map=lat,lng,zoom,type
-    let sll = null;
+    let sll = null, zh = null;
     const map = sp.get("map");
     if (map) {
-      const m = map.match(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-      if (m) sll = asCoords(m[1] + "," + m[2]);
+      const m = map.match(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?))?/);
+      if (m) { sll = asCoords(m[1] + "," + m[2]); zh = asZoom(m[3]); }
     }
     const q = sp.get("q");
     if (q) {
       const c = asCoords(q);
       if (c) return { ll: c };
       // Name + map center: same anchoring rationale as fromGoogle/fromBing.
-      return sll ? { q, sll } : { q };
+      return sll ? { q, sll, z: zh } : { q };
     }
-    if (sll) return { ll: sll };
+    if (sll) return { ll: sll, z: zh };
     return null;
   }
 
@@ -295,7 +323,12 @@
       const ll = asCoords((coordPart || "").split(";")[0]);
       // geo:0,0?q=Label is the "named place" convention — prefer the label.
       if (q && (!ll || ll === "0,0")) return appleURL(asCoords(q) ? { ll: asCoords(q) } : { q });
-      if (ll) return appleURL({ ll });
+      if (ll) {
+        // A real coordinate plus a ?q= label: keep both — Apple Maps shows
+        // q as the pin's name at ll.
+        const label = q && !asCoords(q) ? q : null;
+        return appleURL(label ? { ll, q: label } : { ll });
+      }
       return null;
     }
 
@@ -305,7 +338,7 @@
     if (!desc) return null;
     // Drop undefined keys so the builder stays clean.
     const clean = {};
-    for (const k of ["ll", "q", "sll", "saddr", "daddr"]) if (desc[k]) clean[k] = desc[k];
+    for (const k of ["ll", "q", "sll", "saddr", "daddr", "z"]) if (desc[k]) clean[k] = desc[k];
     return appleURL(clean);
   }
 
