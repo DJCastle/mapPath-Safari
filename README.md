@@ -7,7 +7,7 @@ or HERE WeGo.
 Privacy-first: **no tracking, no analytics, no network calls — fully on-device.**
 By [CodeCrafted Apps](https://codecraftedapps.com).
 
-**Platforms:** macOS, iOS, iPadOS, visionOS. (Not tvOS — no Safari on Apple TV.)
+**Platforms:** macOS, iOS, iPadOS. (Not tvOS — no Safari on Apple TV. Vision Pro is not currently offered on the App Store listing; it could be enabled later via iPad-app compatibility in App Store Connect.)
 
 ---
 
