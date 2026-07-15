@@ -344,8 +344,10 @@
 
   const REWRITTEN = "data-mappath-rewritten";
 
+  // Note: no early-return on the marker — sites can swap an href we already
+  // rewrote (analytics wrappers decorate links at interaction time), so every
+  // signal re-checks. Loop-safe: an already-Apple href parses to null.
   function rewriteLink(a) {
-    if (a.hasAttribute(REWRITTEN)) return;
     const target = toAppleMaps(a.href);
     if (target) {
       a.href = target;
@@ -395,6 +397,18 @@
       }
     }
   });
+  // Some sites set or swap the href at hover/click time, after any scan
+  // (found in the wild on hilton.com's Directions link). A capture-phase
+  // listener rewrites the clicked anchor synchronously, before the browser
+  // follows it — the last line of defense, still reading nothing but hrefs.
+  function interceptClick(event) {
+    const target = event.target;
+    const anchor = target && target.closest ? target.closest("a[href]") : null;
+    if (anchor) rewriteLink(anchor);
+  }
+  document.addEventListener("click", interceptClick, true);
+  document.addEventListener("auxclick", interceptClick, true);
+
   observer.observe(document.documentElement, {
     childList: true,
     subtree: true,

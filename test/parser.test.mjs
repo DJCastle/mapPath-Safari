@@ -40,6 +40,7 @@ function runOn(href) {
   const document = {
     documentElement: {},
     querySelectorAll: (sel) => (sel === "a[href]" ? [anchor] : []),
+    addEventListener: () => {},
   };
   const sandbox = {
     document,
