@@ -68,6 +68,19 @@ if [[ ! -d "$CONTAINER_SRC" || ! -d "$ICON_SRC" ]]; then
     exit 1
 fi
 
+# The canonical icon source became a 4-layer Icon Composer file on
+# 2026-07-13; the flat Assets/icon.png that several steps consume no longer
+# exists. Until the v1.1 icon-pipeline rework lands (flat companion export +
+# .icon adoption), skip icon-derived steps instead of erroring.
+FLAT_ICON="$ICON_SRC/Assets/icon.png"
+HAVE_FLAT_ICON=0
+[[ -f "$FLAT_ICON" ]] && HAVE_FLAT_ICON=1
+if [[ "$HAVE_FLAT_ICON" -eq 0 ]]; then
+    echo "NOTE: $FLAT_ICON missing (layered .icon source) — skipping" >&2
+    echo "      LargeIcon/AppIcon generation; existing generated PNGs in the" >&2
+    echo "      Xcode tree are left as-is. See CLAUDE-LOG (v1.1 icon rework)." >&2
+fi
+
 run() {
     if [[ "$APPLY" -eq 1 ]]; then
         "$@"
@@ -116,6 +129,7 @@ run cp "$CONTAINER_SRC/Assets.xcassets/LaunchBackground.colorset/Contents.json" 
 run mkdir -p "$XCODE_CATALOG/LargeIcon.imageset"
 run cp "$CONTAINER_SRC/Assets.xcassets/LargeIcon.imageset/Contents.json" \
        "$XCODE_CATALOG/LargeIcon.imageset/Contents.json"
+if [[ "$HAVE_FLAT_ICON" -eq 1 ]]; then
 run swift "$REPO_ROOT/scripts/shadow-icon.swift" \
         "$ICON_SRC/Assets/icon.png" \
         "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@1x.png" \
@@ -128,6 +142,7 @@ run swift "$REPO_ROOT/scripts/shadow-icon.swift" \
         "$ICON_SRC/Assets/icon.png" \
         "$XCODE_CATALOG/LargeIcon.imageset/LargeIcon@3x.png" \
         480
+fi
 # Remove the converter template's stale icon-256.png to avoid mixing.
 run rm -f "$XCODE_CATALOG/LargeIcon.imageset/icon-256.png"
 
@@ -161,6 +176,7 @@ done
 # .appiconset with explicit PNGs at all sizes always passes.
 SRC_PNG="$ICON_SRC/Assets/icon.png"
 APPICONSET="$XCODE_CATALOG/AppIcon.appiconset"
+if [[ "$HAVE_FLAT_ICON" -eq 1 ]]; then
 run rm -rf "$XCODE_CATALOG/AppIcon.icon" "$APPICONSET"
 run mkdir -p "$APPICONSET"
 
@@ -186,6 +202,7 @@ run swift "$FLATTEN" "$SRC_PNG" "$APPICONSET/universal-icon-1024@1x.png" 1024
 # Contents.json maps each PNG to its size/idiom/scale slot.
 run cp "$CONTAINER_SRC/Assets.xcassets/AppIcon.appiconset/Contents.json" \
        "$APPICONSET/Contents.json"
+fi
 
 # Privacy manifest: one canonical copy in Shared (App). The Xcode project
 # references this single PBXFileReference from all 4 targets' Copy Bundle

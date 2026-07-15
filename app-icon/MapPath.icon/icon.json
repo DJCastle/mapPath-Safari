@@ -4,13 +4,46 @@
     {
       "layers" : [
         {
-          "image-name" : "icon.png",
-          "name" : "icon",
+          "image-name" : "Path1MapPath Icon.png",
+          "name" : "Path1MapPath Icon",
           "position" : {
             "scale" : 0.65,
             "translation-in-points" : [
-              0,
-              0
+              9.362607758620811,
+              -10.265086206896484
+            ]
+          }
+        },
+        {
+          "image-name" : "Path2MapPath Icon.png",
+          "name" : "Path2MapPath Icon",
+          "position" : {
+            "scale" : 0.65,
+            "translation-in-points" : [
+              9.362607758620726,
+              -10.265086206896456
+            ]
+          }
+        },
+        {
+          "image-name" : "Path3MapPath Icon.png",
+          "name" : "Path3MapPath Icon",
+          "position" : {
+            "scale" : 0.65,
+            "translation-in-points" : [
+              9.362607758620669,
+              -10.265086206896456
+            ]
+          }
+        },
+        {
+          "image-name" : "PinMapPathIcon.png",
+          "name" : "PinMapPathIcon",
+          "position" : {
+            "scale" : 0.65,
+            "translation-in-points" : [
+              5.526400862068925,
+              -3.734913793103317
             ]
           }
         }
