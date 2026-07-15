@@ -358,6 +358,22 @@
     scope.querySelectorAll("a[href]").forEach(rewriteLink);
   }
 
+  // ---- Popup bridge --------------------------------------------------------
+  // The popup asks for the page's visible text so the native handler can run
+  // on-device address detection. Strictly user-initiated: nothing is read
+  // until the user opens the popup, and the text is scanned and discarded —
+  // never stored, never transmitted. Payload is capped so huge pages stay
+  // cheap. (Guarded: the extension API doesn't exist in the test harness.)
+  if (typeof browser !== "undefined" && browser.runtime && browser.runtime.onMessage) {
+    browser.runtime.onMessage.addListener((msg) => {
+      if (msg && msg.type === "mappath.collectText") {
+        const text = (document.body && document.body.innerText) || "";
+        return Promise.resolve({ text: text.slice(0, 200000) });
+      }
+      return undefined;
+    });
+  }
+
   rewrite(document);
 
   // Re-run on DOM changes (SPAs, lazy-loaded results). Scoped to added nodes,

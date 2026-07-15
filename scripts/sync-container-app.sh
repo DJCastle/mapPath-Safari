@@ -96,6 +96,11 @@ run() {
 # Hardened ViewController.swift (force-unwrap cleanup + os_log on error paths).
 run cp "$CONTAINER_SRC/ViewController.swift" "$XCODE_APP_DIR/ViewController.swift"
 
+# Native extension handler — the address finder's on-device DataDetector side
+# (canonical since 1.1; before that it was the converter's untracked echo stub).
+run cp "$CONTAINER_SRC/SafariWebExtensionHandler.swift" \
+       "$REPO_ROOT/Map Path/Shared (Extension)/SafariWebExtensionHandler.swift"
+
 # macOS AppDelegate with explicit secure-coding opt-in for restorable state.
 run cp "$CONTAINER_SRC/AppDelegate-macOS.swift" "$REPO_ROOT/Map Path/macOS (App)/AppDelegate.swift"
 

@@ -3,9 +3,17 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.0.1] - Unreleased
+## [1.1.0] - Unreleased
 
-Quality fast-follow to 1.0. No behavior changes to links that worked —
+The address finder release. Open the Map Path popup on any page and it
+lists the **potential addresses** it finds in the page's text — tap one
+and it opens in Apple Maps. Detection runs entirely on your device with
+the same data detectors Mail uses (nothing is stored or transmitted, and
+the page is only read when you open the popup), which is also why the
+extension now declares the `nativeMessaging` capability.
+
+Also incorporates the quality batch originally staged as 1.0.1 (folded
+in unreleased). No behavior changes to links that worked —
 only new coverage, richer fidelity, and a lighter bundle.
 
 - **HERE route shares rewrite to real directions.** A
