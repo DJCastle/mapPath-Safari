@@ -24,4 +24,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
+    /// Help menu (⌘?) → the support page. The app has no help book; the
+    /// responder chain delivers showHelp: here, and the web FAQ is the help.
+    @objc func showHelp(_ sender: Any?) {
+        if let url = URL(string: "https://codecraftedapps.com/extensions/map-path/support.html") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
 }

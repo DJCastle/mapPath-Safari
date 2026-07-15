@@ -16,6 +16,7 @@
 
 import SwiftUI
 import Observation
+import TipKit
 import os.log
 
 #if os(iOS)
@@ -53,6 +54,15 @@ final class OnboardingModel {
     var macState: MacExtensionState = .unknown
 
     let actions: OnboardingActions
+
+    /// Equatable hook for animating the macOS state flip; constant on iOS.
+    var macStateAnimationKey: Int {
+#if os(macOS)
+        switch macState { case .unknown: 0; case .enabled: 1; case .disabled: 2 }
+#else
+        0
+#endif
+    }
 
     init(isReturnVisit: Bool, iosModernSettingsPath: Bool, actions: OnboardingActions) {
         self.isReturnVisit = isReturnVisit
@@ -247,11 +257,16 @@ private struct HomeScreen: View {
             .padding(.vertical, 32)
         }
         .navigationTitle("")
+        // Cross-fade the needs-setup → all-set flip instead of a hard cut.
+        .animation(.default, value: model.macStateAnimationKey)
+        .task { try? Tips.configure() }
     }
 
     @ViewBuilder
     private var primaryContent: some View {
 #if os(macOS)
+        // (Animated: see the .animation modifier where this is used — the
+        // orange "needs setup" → green "all set" flip cross-fades.)
         // Live state drives the macOS view: once enabled, show the all-set view
         // regardless of first-run vs return.
         if model.macState == .enabled {
@@ -269,6 +284,21 @@ private struct HomeScreen: View {
         }
 #endif
     }
+}
+
+/// One-time tip teaching the finder's entry point in Safari — TipKit decides
+/// when to stop showing it. This is the discoverability answer we chose over
+/// an always-on badge (privacy: the page is only read when the popup opens).
+struct FinderTip: Tip {
+    var title: Text { Text("New: find addresses on any page") }
+    var message: Text {
+#if os(macOS)
+        Text("Click the Map Path button in Safari's toolbar — it lists the addresses on the page you're reading.")
+#else
+        Text("In Safari, tap the extensions button in the address bar, then Map Path — it lists the addresses on the page.")
+#endif
+    }
+    var image: Image? { Image(systemName: "mappin.and.ellipse") }
 }
 
 private struct HeaderView: View {
@@ -336,6 +366,7 @@ private struct VerificationView: View {
 
     var body: some View {
         VStack(spacing: 14) {
+            TipView(FinderTip())
 #if os(macOS)
             MacStatusView(state: model.macState)
             Button("Recheck") { model.actions.recheck() }
@@ -375,6 +406,7 @@ private struct AllSetView: View {
 
     var body: some View {
         VStack(spacing: 14) {
+            TipView(FinderTip())
             Label("Map Path is enabled in Safari", systemImage: "checkmark.circle.fill")
                 .foregroundStyle(.green)
                 .font(.headline)
@@ -388,7 +420,7 @@ private struct AllSetView: View {
             Button("Close") { model.actions.closeWindow() }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-            Text("**Test it now** opens a sample page in Safari. The first time, Safari may ask for website access — choose **Always Allow on Every Website** (or set **All Websites: Allow**), or links won't open in Apple Maps yet.")
+            Text("**Test it now** opens a sample page. If Safari asks about website access, choose **Always Allow on Every Website**.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -454,7 +486,7 @@ private struct SetupStepsScreen: View {
 #if os(macOS)
                 Text("New to Safari extensions?")
                     .font(.title2.bold())
-                Text("Map Path lives inside Safari, so Safari is where you switch it on. This button jumps straight to the right screen:")
+                Text("Safari is where you switch Map Path on — this button jumps to the right screen:")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 Button {
@@ -519,6 +551,18 @@ private struct SetupStepsScreen: View {
                     SettingsMockCard(indented: true) { MockToggleRow(label: "Allow in Private Browsing") }
                 }
 #endif
+                Text("Find addresses on any page")
+                    .font(.title2.bold())
+#if os(macOS)
+                StepRow(1, "On any page, click the **Map Path button** in Safari's toolbar.")
+#else
+                StepRow(1, "In Safari, tap the **extensions button** in the address bar, then **Map Path**.")
+#endif
+                StepRow(2, "Tap an address in the list — it opens in Apple Maps.")
+                Text("The page is only read when you open the popup. Nothing is stored or sent.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
                 DisclosureGroup {
                     Image("SetupScreenshot")
                         .resizable()

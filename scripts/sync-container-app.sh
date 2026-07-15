@@ -101,6 +101,19 @@ run cp "$CONTAINER_SRC/ViewController.swift" "$XCODE_APP_DIR/ViewController.swif
 run cp "$CONTAINER_SRC/SafariWebExtensionHandler.swift" \
        "$REPO_ROOT/Map Path/Shared (Extension)/SafariWebExtensionHandler.swift"
 
+# iOS SceneDelegate — converter template + Home Screen quick-action handling
+# (canonical since 1.1).
+run cp "$CONTAINER_SRC/SceneDelegate-iOS.swift" \
+       "$REPO_ROOT/Map Path/iOS (App)/SceneDelegate.swift"
+
+# Layered app icon (Icon Composer, 4 layers) — canonical source mirrored into
+# the Xcode tree; both app targets reference it and the build setting
+# ASSETCATALOG_COMPILER_APPICON_NAME = mapPathIcon selects it. The legacy
+# generated AppIcon.appiconset stays in the catalog as the tested fallback
+# (flip the build setting back to AppIcon if Mac validator 90236 reappears).
+run rm -rf "$REPO_ROOT/Map Path/mapPathIcon.icon"
+run cp -R "$ICON_SRC" "$REPO_ROOT/Map Path/mapPathIcon.icon"
+
 # macOS AppDelegate with explicit secure-coding opt-in for restorable state.
 run cp "$CONTAINER_SRC/AppDelegate-macOS.swift" "$REPO_ROOT/Map Path/macOS (App)/AppDelegate.swift"
 
@@ -227,6 +240,23 @@ if [[ -f "$INFO_PLIST_MAC" ]]; then
             -c "Add :LSApplicationCategoryType string public.app-category.utilities" \
             "$INFO_PLIST_MAC"
     fi
+fi
+
+# iOS Home Screen quick actions (static). Both are URL jumps handled in
+# SceneDelegate-iOS.swift. Idempotent.
+if [[ -f "$REPO_ROOT/Map Path/iOS (App)/Info.plist" ]] && \
+   ! /usr/libexec/PlistBuddy -c "Print :UIApplicationShortcutItems" \
+       "$REPO_ROOT/Map Path/iOS (App)/Info.plist" >/dev/null 2>&1; then
+    IOS_PLIST="$REPO_ROOT/Map Path/iOS (App)/Info.plist"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems array" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:0 dict" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:0:UIApplicationShortcutItemType string com.doncastle.mappath.testpage" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:0:UIApplicationShortcutItemTitle string Test It Now" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:0:UIApplicationShortcutItemIconSymbolName string map" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:1 dict" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:1:UIApplicationShortcutItemType string com.doncastle.mappath.settings" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:1:UIApplicationShortcutItemTitle string Open Settings" "$IOS_PLIST"
+    run /usr/libexec/PlistBuddy -c "Add :UIApplicationShortcutItems:1:UIApplicationShortcutItemIconSymbolName string gear" "$IOS_PLIST"
 fi
 
 # ITSAppUsesNonExemptEncryption=NO on both app Info.plists — the app uses

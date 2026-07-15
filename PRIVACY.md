@@ -22,6 +22,12 @@ rewrites them to open in Apple Maps instead.
 
 All link detection and rewriting happens locally, in the page, in real time.
 
+The address finder (v1.1) reads the page's visible text **only when you
+open the Map Path popup** — opening it is what triggers the scan. The
+text is checked on your device with Apple's built-in data detectors and
+immediately discarded. It is never stored, logged, or transmitted, and
+nothing scans in the background while you browse.
+
 The companion app (the one you open to set the extension up) stores a single
 on-device yes/no value — whether you've launched it before — so the setup
 walkthrough only shows once. It contains no personal data and never leaves
