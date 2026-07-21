@@ -122,6 +122,8 @@ const cases = [
   ["Waze locale-region-prefixed ul", "https://www.waze.com/en-US/ul?ll=38.8910500%2C-77.0479700", A + "ll=38.89105,-77.04797"],
   ["Waze legacy livemap lat/lon (Wikipedia GeoHack)", "https://www.waze.com/livemap/?zoom=15&lat=38.8892686&lon=-77.0509287", A + "ll=38.8892686,-77.0509287&z=15"],
   ["Google place_id-only query (opaque, Google-only) — left alone", "https://www.google.com/maps/place/?q=place_id:ChIJN1t_tDeuEmsRUsoyG83frY4", LEFT],
+  ["Google SERP local-pack ftid-only link (opaque feature id) — left alone", "https://maps.google.com/maps?vet=10CAAQoqAOahcKEwiYksiH4OKVAxUAAAAAHQAAAAAQCA..i&client=safari&fvr=1&cs=0&um=1&ie=UTF-8&fb=1&gl=us&sa=X&ftid=0x80c8ce0ee181ff77:0x9c915ef178e0ff2c", LEFT],
+  ["Google geocode-token-only link — left alone", "https://maps.google.com/maps?um=1&ie=UTF-8&geocode=KcSFwYvyxsCJMbwHIm5Yh4Qq", LEFT],
   ["Google Plus Code comma-adjacent locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF,Las+Vegas/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484&z=17"],
   ["Wrapped http (non-https) Apple Maps link — left alone", "https://www.google.com/url?q=http%3A%2F%2Fmaps.apple.com%2F%3Fll%3D38.6%2C-90.1", LEFT],
   ["HERE corporate-site search (not a map link)", "https://www.here.com/search?q=careers", LEFT],
