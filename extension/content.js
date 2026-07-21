@@ -343,6 +343,7 @@
   }
 
   const REWRITTEN = "data-mappath-rewritten";
+  const ENFORCE = "data-mappath-enforce";
 
   // Google search-result place links (map pack, knowledge panel) often carry
   // ONLY an opaque feature id (ftid=/geocode=/place_id:) — no location exists
@@ -402,10 +403,15 @@
   // rewrote (analytics wrappers decorate links at interaction time), so every
   // signal re-checks. Loop-safe: an already-Apple href parses to null.
   function rewriteLink(a) {
-    const target = toAppleMaps(a.href) || labelFallback(a);
+    const direct = toAppleMaps(a.href);
+    const target = direct || labelFallback(a);
     if (target) {
       a.href = target;
       a.setAttribute(REWRITTEN, "1");
+      // Fallback-rewritten links live on pages (Google results) that cancel
+      // the click and navigate via their own stored URL, ignoring the href.
+      // Mark them so the click handler can enforce the visible destination.
+      if (!direct) a.setAttribute(ENFORCE, "1");
     }
   }
 
@@ -458,7 +464,29 @@
   function interceptClick(event) {
     const target = event.target;
     const anchor = target && target.closest ? target.closest("a[href]") : null;
-    if (anchor) rewriteLink(anchor);
+    if (!anchor) return;
+    rewriteLink(anchor);
+    // What you hover is what you get: on marked links, the page's own script
+    // would cancel this click and navigate to its stored (non-Apple) URL —
+    // so honor the href the user saw instead. Plain left-clicks only;
+    // modified clicks keep their native open-in-tab semantics (which
+    // already use the rewritten href).
+    if (
+      event.type === "click" &&
+      event.button === 0 &&
+      !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey &&
+      !event.defaultPrevented &&
+      anchor.hasAttribute(ENFORCE) &&
+      anchor.href.startsWith("https://maps.apple.com/")
+    ) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (anchor.target === "_blank") {
+        window.open(anchor.href, "_blank", "noopener");
+      } else {
+        window.location.assign(anchor.href);
+      }
+    }
   }
   document.addEventListener("click", interceptClick, true);
   document.addEventListener("auxclick", interceptClick, true);
