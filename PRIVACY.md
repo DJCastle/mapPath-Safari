@@ -41,7 +41,10 @@ Because Map Path collects no data, there is no data to share, sell, or disclose
 ## Permissions
 
 Map Path requests only the ability to read and modify links on the pages you
-visit, which is required to rewrite map links. It requests no host permissions
+visit, which is required to rewrite map links. For one narrow case — Google
+search-result place links that carry no address in their web address — it also
+reads that link's own visible label (the text you see on the link), and only
+rewrites when the label is itself a street address. It requests no host permissions
 beyond that and makes no outbound connections.
 
 ## Changes

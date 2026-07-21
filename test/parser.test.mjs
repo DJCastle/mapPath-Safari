@@ -20,11 +20,12 @@ const SRC = readFileSync(join(__dirname, "..", "extension", "content.js"), "utf8
 const LEFT = Symbol("left-untouched");
 
 // --- fake DOM ------------------------------------------------------------
-function makeAnchor(href) {
+function makeAnchor(href, label) {
   let _href = href;
   const attrs = Object.create(null);
   return {
     nodeType: 1,
+    textContent: label || "",
     get href() { return _href; },
     set href(v) { _href = v; },
     getAttribute: (k) => attrs[k],
@@ -35,8 +36,8 @@ function makeAnchor(href) {
   };
 }
 
-function runOn(href) {
-  const anchor = makeAnchor(href);
+function runOn(href, label) {
+  const anchor = makeAnchor(href, label);
   const document = {
     documentElement: {},
     querySelectorAll: (sel) => (sel === "a[href]" ? [anchor] : []),
@@ -124,6 +125,11 @@ const cases = [
   ["Google place_id-only query (opaque, Google-only) — left alone", "https://www.google.com/maps/place/?q=place_id:ChIJN1t_tDeuEmsRUsoyG83frY4", LEFT],
   ["Google SERP local-pack ftid-only link (opaque feature id) — left alone", "https://maps.google.com/maps?vet=10CAAQoqAOahcKEwiYksiH4OKVAxUAAAAAHQAAAAAQCA..i&client=safari&fvr=1&cs=0&um=1&ie=UTF-8&fb=1&gl=us&sa=X&ftid=0x80c8ce0ee181ff77:0x9c915ef178e0ff2c", LEFT],
   ["Google geocode-token-only link — left alone", "https://maps.google.com/maps?um=1&ie=UTF-8&geocode=KcSFwYvyxsCJMbwHIm5Yh4Qq", LEFT],
+  ["Google SERP ftid link whose LABEL is a street address — rewritten from the label", "https://maps.google.com/maps?um=1&ie=UTF-8&ftid=0x80c8ce0ee181ff77:0x9c915ef178e0ff2c", A + "q=" + enc("10305 S Eastern Ave, Henderson, NV 89052"), "10305 S Eastern Ave, Henderson, NV 89052"],
+  ["Google SERP ftid link labeled 'Directions' — left alone (no address in label)", "https://maps.google.com/maps?um=1&ie=UTF-8&ftid=0x80c8ce0ee181ff77:0x9c915ef178e0ff2c", LEFT, "Directions"],
+  ["Google SERP ftid link labeled with review count — left alone", "https://maps.google.com/maps?um=1&ie=UTF-8&ftid=0x80c8ce0ee181ff77:0x9c915ef178e0ff2c", LEFT, "1,536 Reviews"],
+  ["Google SERP ftid link labeled with business name only — left alone (franchise ambiguity)", "https://maps.google.com/maps?um=1&ie=UTF-8&ftid=0x80c8ce0ee181ff77:0x9c915ef178e0ff2c", LEFT, "Applebee's Grill + Bar"],
+  ["NON-map link with an address label — left alone (fallback is Google-place-links only)", "https://www.hilton.com/en/locations/", LEFT, "10305 S Eastern Ave, Henderson, NV 89052"],
   ["Google Plus Code comma-adjacent locality + @coords — pin the coords", "https://www.google.com/maps/place/Q2XQ%2BXF,Las+Vegas/@36.1147065,-115.1728484,17z", A + "ll=36.1147065,-115.1728484&z=17"],
   ["Wrapped http (non-https) Apple Maps link — left alone", "https://www.google.com/url?q=http%3A%2F%2Fmaps.apple.com%2F%3Fll%3D38.6%2C-90.1", LEFT],
   ["HERE corporate-site search (not a map link)", "https://www.here.com/search?q=careers", LEFT],
@@ -132,9 +138,9 @@ const cases = [
 // --- run ----------------------------------------------------------------
 let pass = 0;
 const fails = [];
-for (const [name, href, expect] of cases) {
+for (const [name, href, expect, label] of cases) {
   let got;
-  try { got = runOn(href); } catch (e) { got = "THREW: " + e.message; }
+  try { got = runOn(href, label); } catch (e) { got = "THREW: " + e.message; }
   const want = expect === LEFT ? href : expect;
   if (got === want) { pass++; }
   else { fails.push({ name, href, want, got }); }

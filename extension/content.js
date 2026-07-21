@@ -344,11 +344,44 @@
 
   const REWRITTEN = "data-mappath-rewritten";
 
+  // Google search-result place links (map pack, knowledge panel) often carry
+  // ONLY an opaque feature id (ftid=/geocode=/place_id:) — no location exists
+  // in the URL. When such a link's own visible label is a street address
+  // (geographically unambiguous, so never-worse holds), rewrite from the
+  // label. Deliberately narrow: a leading house number plus a ZIP or street
+  // suffix is required, so "Directions", "Website", and "1,536 Reviews" can
+  // never become searches, and name-only labels (wrong-franchise risk) are
+  // left alone. This is the one place the extension reads a link's text —
+  // the label the user sees on the link itself, nothing else on the page.
+  const ADDRESSISH_RE = /^\d{1,6}[a-z]?\s+\S+/i;
+  const ADDRESS_HINT_RE = /(\b\d{5}(?:-\d{4})?\b|\b(?:ave|avenue|st|street|blvd|boulevard|rd|road|dr|drive|ln|lane|way|hwy|highway|pkwy|parkway|ct|court|pl|place|plaza|sq|square|ter|terrace|cir|circle)\b)/i;
+
+  function isOpaqueGooglePlaceLink(href) {
+    let u;
+    try {
+      u = new URL(href, location.href);
+    } catch {
+      return false;
+    }
+    const host = u.hostname.toLowerCase();
+    if (!(host === "maps.google.com" || (isGoogleHost(host) && u.pathname.toLowerCase().startsWith("/maps")))) return false;
+    const sp = u.searchParams;
+    return sp.has("ftid") || sp.has("geocode") || /^place_id:/i.test(sp.get("q") || "");
+  }
+
+  function labelFallback(a) {
+    if (!isOpaqueGooglePlaceLink(a.href)) return null;
+    const label = (a.textContent || "").replace(/\s+/g, " ").trim();
+    if (label.length < 10 || label.length > 120) return null;
+    if (!ADDRESSISH_RE.test(label) || !ADDRESS_HINT_RE.test(label)) return null;
+    return appleURL({ q: label });
+  }
+
   // Note: no early-return on the marker — sites can swap an href we already
   // rewrote (analytics wrappers decorate links at interaction time), so every
   // signal re-checks. Loop-safe: an already-Apple href parses to null.
   function rewriteLink(a) {
-    const target = toAppleMaps(a.href);
+    const target = toAppleMaps(a.href) || labelFallback(a);
     if (target) {
       a.href = target;
       a.setAttribute(REWRITTEN, "1");
