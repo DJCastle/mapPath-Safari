@@ -74,6 +74,7 @@ const cases = [
   ["Google lookalike domain (maps.google.com.evil.net) — left alone", "https://maps.google.com.evil.net/maps/place/Fake+Bank+Branch", LEFT],
   ["Google maps.google ?q with city/state", "https://maps.google.com/?q=Gateway+Arch,+St.+Louis,+MO", A + "q=" + enc("Gateway Arch, St. Louis, MO")],
   ["Google dropped pin (empty place + @coords)", "https://www.google.com/maps/place//@39.9489668,-75.1500233,18z/data=!4m2!3m1!1s0x0:0x0", A + "ll=39.9489668,-75.1500233&z=18"],
+  ["Google dir//destination with data= blob (SERP directions, Don's find)", "https://www.google.com/maps/dir//BJ's+Restaurant+%26+Brewhouse,+9520+S+Eastern+Ave,+Las+Vegas,+NV+89123/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x80c8ce3f81adbafd:0x2cb470dcda6b238e?sa=X&ved=1t:57443&ictx=111", A + "daddr=" + enc("BJ's Restaurant & Brewhouse, 9520 S Eastern Ave, Las Vegas, NV 89123")],
   ["Google 'Directions' button dir//destination", "https://www.google.com/maps/dir//Mount+Rushmore+National+Memorial,+Keystone,+SD/@43.879102,-103.459067,15z", A + "daddr=" + enc("Mount Rushmore National Memorial, Keystone, SD")],
   ["Google ?q raw coords (shared pin)", "https://www.google.com/maps?q=29.4259671,-98.4861419", A + "ll=29.4259671,-98.4861419"],
   ["Google classic ?daddr full address", "https://maps.google.com/maps?daddr=Liberty+Bell+Center,+526+Market+St,+Philadelphia,+PA", A + "daddr=" + enc("Liberty Bell Center, 526 Market St, Philadelphia, PA")],

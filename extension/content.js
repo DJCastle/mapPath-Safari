@@ -80,7 +80,8 @@
       // Waypoint segments end at the @coords viewport suffix; a trailing
       // slash leaves an empty last segment we drop.
       let segs = dir[1].split("/");
-      const at = segs.findIndex((s) => s.startsWith("@"));
+      // Waypoints end at the @viewport or the /data=! blob — neither is a stop.
+      const at = segs.findIndex((s) => s.startsWith("@") || s.startsWith("data="));
       if (at !== -1) segs = segs.slice(0, at);
       while (segs.length && segs[segs.length - 1] === "") segs.pop();
       // Apple Maps URLs can't express intermediate stops. Rewriting a
