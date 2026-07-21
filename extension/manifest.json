@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Map Path",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Routes map links to Apple Maps. No tracking. Built by CodeCrafted Apps.",
   "icons": {
     "16": "icons/icon-16.png",

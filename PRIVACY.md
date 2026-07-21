@@ -22,7 +22,7 @@ rewrites them to open in Apple Maps instead.
 
 All link detection and rewriting happens locally, in the page, in real time.
 
-The address finder (v1.1) reads the page's visible text **only when you
+The address finder (v1.2) reads the page's visible text **only when you
 open the Map Path popup** — opening it is what triggers the scan. The
 text is checked on your device with Apple's built-in data detectors and
 immediately discarded. It is never stored, logged, or transmitted, and

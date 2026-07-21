@@ -3,7 +3,7 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.1.0] - Unreleased
+## [1.2.0] - Unreleased
 
 The address finder release. Open the Map Path popup on any page and it
 lists the **potential addresses** it finds in the page's text — tap one
@@ -16,6 +16,13 @@ Also incorporates the quality batch originally staged as 1.0.1 (folded
 in unreleased). No behavior changes to links that worked —
 only new coverage, richer fidelity, and a lighter bundle.
 
+- **Google search results work now** (user-reported): the map-pack and
+  knowledge-panel links carry only Google's internal place ID — no
+  address exists in the URL. When such a link's own visible label is a
+  street address, Map Path rewrites from the label (addresses are
+  unambiguous, so the never-worse rule holds). Generic labels like
+  "Directions" and business-name-only labels are deliberately left
+  alone; the popup finder covers those.
 - **HERE route shares rewrite to real directions.** A
   `share.here.com/r/<from>/<to>` link becomes Apple Maps directions;
   routes with more than two stops stay untouched (Apple Maps can't
