@@ -356,6 +356,22 @@
   const ADDRESSISH_RE = /^\d{1,6}[a-z]?\s+\S+/i;
   const ADDRESS_HINT_RE = /(\b\d{5}(?:-\d{4})?\b|\b(?:ave|avenue|st|street|blvd|boulevard|rd|road|dr|drive|ln|lane|way|hwy|highway|pkwy|parkway|ct|court|pl|place|plaza|sq|square|ter|terrace|cir|circle)\b)/i;
 
+  // Google's click tracking swaps hrefs to a google.com/url redirect at
+  // mousedown; look through it so the opacity check sees the real target.
+  function unwrapGoogleRedirect(u) {
+    if (isGoogleHost(u.hostname.toLowerCase()) && u.pathname === "/url") {
+      const target = u.searchParams.get("q") || u.searchParams.get("url");
+      if (target) {
+        try {
+          return new URL(target);
+        } catch {
+          /* fall through to the wrapper itself */
+        }
+      }
+    }
+    return u;
+  }
+
   function isOpaqueGooglePlaceLink(href) {
     let u;
     try {
@@ -363,10 +379,15 @@
     } catch {
       return false;
     }
+    u = unwrapGoogleRedirect(u);
     const host = u.hostname.toLowerCase();
     if (!(host === "maps.google.com" || (isGoogleHost(host) && u.pathname.toLowerCase().startsWith("/maps")))) return false;
     const sp = u.searchParams;
-    return sp.has("ftid") || sp.has("geocode") || /^place_id:/i.test(sp.get("q") || "");
+    // The place id hides either in explicit params or inside the /data=!
+    // path blob (the SERP's favorite form).
+    return sp.has("ftid") || sp.has("geocode") ||
+      /^place_id:/i.test(sp.get("q") || "") ||
+      u.pathname.includes("/data=!");
   }
 
   function labelFallback(a) {
