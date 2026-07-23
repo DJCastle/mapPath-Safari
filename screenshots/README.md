@@ -20,7 +20,7 @@ Consistent story arc across all three platforms:
 | `macos-1.png` | First-run welcome with the orange "Important — 3 switches" callout (2026-07-04 set) |
 | `macos-2.png` | Green "Map Path is enabled — you're all set" state |
 | `macos-3.png` | Safari hovering a Google Maps link on the test page; zoom-inset callout magnifies the status-bar `maps.apple.com/?q=...&sll=...` URL (rewrite proof) |
-| `macos-4.png` | Map Path toolbar popup (privacy bullets) open over the test page |
+| `macos-4.png` | v1.2 address finder: toolbar popup over the test bench — "2 potential addresses" (2026-07-23, 5K capture cropped to the window) |
 | `macos-5.png` | Apple Maps on Liberty Island after the click (the payoff; account avatar retouched out) |
 | `iphone-1.png` | First-run welcome with the orange "Important — 3 switches" callout (2026-07-04 set, NYC sim location) |
 | `iphone-2.png` | Settings → Map Path page: Allow Extension on, Private Browsing on, All Websites: Allow (permission proof; clean, unannotated) |
