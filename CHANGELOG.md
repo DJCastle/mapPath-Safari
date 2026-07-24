@@ -3,7 +3,7 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.2.0] - Unreleased
+## [1.2.0] - 2026-07-23
 
 The address finder release. Open the Map Path popup on any page and it
 lists the **potential addresses** it finds in the page's text — tap one
