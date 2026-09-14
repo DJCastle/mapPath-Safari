@@ -194,13 +194,36 @@ servers, or legal.
 
 ## New machine
 
-If told this is a new machine or a fresh recovery, check and report before starting
-work:
+If told this is a new machine or a fresh recovery, check and report all of the
+following before starting work. Some of it has nothing to do with this project
+— that is the point. Anything no project depends on is invisible to every
+project, so it only ever gets checked here.
 
-- Are Time Machine backups running and current?
-- Is commit signing configured (`git config --get gpg.format` and
-  `user.signingkey`)? Unsigned commits show as Unverified on GitHub and git never
-  complains.
-- Does this project build, and what tools does it need that aren't installed?
+**This project**
 
-Ask before installing anything.
+- Does it build, and what tools does it need that aren't installed?
+
+**Things that fail silently, machine-wide**
+
+- **Public-repo protection.** Is `~/.config/git/ignore` a symlink to
+  `~/.claude/git-config/global-gitignore`, and does it resolve? It keeps
+  `CLAUDE-LOG.md`, `AGENTS.md`, `HANDOFF.md` and `ROADMAP.md` out of public
+  repos. A rebuilt Mac has dropped it before, and the next session committed
+  internal notes into a public repo. Nothing else checks this.
+- **Nightly backup.** Is the LaunchAgent loaded *and* pointing at a path that
+  exists — `launchctl print gui/$(id -u)/com.codecraftedapps.backup-now`? It
+  has been loaded, scheduled, and running a deleted path while reporting
+  nothing wrong.
+- **Time Machine.** Is it configured and current?
+- **Commit signing.** `git config --get gpg.format` and `user.signingkey`.
+  Unsigned commits show Unverified on GitHub and git never complains.
+- **Xcode's Claude Agent.** It is sandboxed and cannot read `~/.claude`, so it
+  needs `~/.claude/setup/wire-xcode-agent.sh --apply` — otherwise it runs with
+  no Homebrew on PATH, the wrong model, and no skills. It will not say so.
+- **MCP servers.** `~/.claude.json` lives outside the config repo; restore from
+  `~/.claude/docs/mcp-servers-template.json` if empty.
+- **Non-project apps.** Nothing here will ever ask for Chrome, Firefox, fonts
+  or Quick Look. `~/.claude/setup/brew-install.sh apps --apply` and
+  `... extras --apply` are the only things that install them.
+
+Ask before installing or changing anything.
