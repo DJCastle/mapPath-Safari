@@ -35,6 +35,34 @@ proposal, not verified truth.
   done until it builds and those tests are listed. Scale rigor to risk — full
   treatment for data, sync, and release work; light touch for small UI tweaks.
 
+## Model choice — everyday model by default, strongest model when it's worth it
+
+Two tiers: the **everyday model** (Opus 5 as of September 2026) and the
+**strongest model** (Fable 5 as of September 2026). When newer models replace
+either, the rule applies to them — name the current ones, never a superseded
+one. Work on the everyday model by default. You can't switch your own model, but
+you can see how hard the work is, so recommend a switch when it pays off. You
+can't see the owner's remaining quota, so recommend on difficulty alone and
+leave that call to them.
+
+- **Recommend the strongest model before starting** when the task changes
+  several targets together (app + widget + watch + complication); changes
+  SwiftData models, CloudKit sync, or migrates stored data; redesigns
+  concurrency (actors, isolation, Sendable across modules); touches HealthKit,
+  permissions, privacy or security logic; makes an architecture decision
+  that's expensive to reverse; or is a bug that has survived two fix attempts.
+- **Recommend the strongest model mid-task** when you've reverted your own
+  change twice, or you're no longer confident the fix is right.
+- **Don't recommend it** for single views, compile errors, copy changes, small
+  refactors, or tests for code that already exists.
+- **Recommend dropping back to the everyday model** once the hard part is
+  settled and what remains is mechanical.
+- Say it in one line, then wait: *"Recommend <strongest model> for this:
+  <reason>. Switch and resend, or say 'continue on <everyday model>.'"*
+- For big jobs, split plan from build: have the strongest model write the plan
+  to a file, so a fresh everyday-model conversation can carry it out without
+  redoing the reasoning or running into the context limit.
+
 ## Verify — don't trust memory
 
 For anything policy- or API-sensitive (App Store Review Guidelines, framework
