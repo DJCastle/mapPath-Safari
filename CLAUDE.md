@@ -1,5 +1,9 @@
 # Map Path — Safari · project rules for Claude Code
 
+Shared craft rules — imported so every surface loads them, including Xcode's sandboxed agent:
+
+@Agentic_Developer.md
+
 A Safari Web Extension that rewrites map links (Google / Waze / Bing / HERE) to
 **Apple Maps**. Privacy-first: on-device only, no network, no storage, no
 analytics. By CodeCrafted Apps, part of the Digital Life Compass ecosystem.
