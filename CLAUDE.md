@@ -25,6 +25,13 @@ repo — anything durable about the project belongs here instead.
   canonical files, then run `scripts/sync-container-app.sh --apply` to push them
   into the Xcode tree. Fresh-Mac flow: `safari-web-extension-converter extension/`
   → set dev team in Xcode → `scripts/sync-container-app.sh --apply` → build.
+- **Build settings live only in the un-committed Xcode tree, so re-apply them
+  after regenerating it.** The converter emits its own defaults; these are
+  deliberate and are lost on regeneration:
+  `SWIFT_VERSION = 6.0` (Swift 6 language mode — Swift 5 hid a real actor
+  isolation bug), deployment targets `26.0` for iOS and macOS (floor is OS 26
+  even though we build against the 27 SDK), and `MARKETING_VERSION` /
+  `CURRENT_PROJECT_VERSION` matching `extension/manifest.json` and CHANGELOG.
 - **Classify sources by hostname, not substring.** `"here.com".includes` matches
   `atmosphere.com`; the parser uses parsed `u.hostname` + path instead. Keep it
   that way.

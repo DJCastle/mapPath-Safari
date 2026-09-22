@@ -26,6 +26,10 @@ Map Path is built against the 27 SDK but still runs on 26.
 - Removed dead code the converter left behind: availability branches for
   iOS 15 / macOS 11, always true against an OS 26 floor.
 - Logging moved from `os_log` to the modern `Logger` API.
+- **Now builds in Swift 6 language mode**, which caught a real concurrency
+  bug Swift 5 mode was hiding: the shared logger was main-actor
+  isolated while some SafariServices callbacks arrive off the main
+  actor. Both targets compile warning-free under Swift 6.
 - Doc accuracy: the polling-interval comment claimed one second where
   the code polls every three, and `CLAUDE.md` linked two files that are
   deliberately absent from this public repo.

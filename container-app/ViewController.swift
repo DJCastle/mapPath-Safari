@@ -35,7 +35,10 @@ import SafariServices
 // it, iOS 26.2+ uses it to deep-link into Safari Extensions settings.
 let extensionBundleIdentifier = "com.doncastle.mappath.Extension"
 
-private let log = Logger(subsystem: "com.doncastle.mappath", category: "Container")
+// nonisolated: Logger is Sendable and this is immutable, and some SafariServices
+// completion handlers are delivered off the main actor. Without this, Swift 6
+// rejects logging from those callbacks.
+private nonisolated let log = Logger(subsystem: "com.doncastle.mappath", category: "Container")
 
 private let testPageURL = URL(string: "https://codecraftedapps.com/extensions/map-path/test.html")
 

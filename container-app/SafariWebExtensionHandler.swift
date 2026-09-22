@@ -11,7 +11,7 @@
 import SafariServices
 import os
 
-private let log = Logger(subsystem: "com.doncastle.mappath", category: "Extension")
+private nonisolated let log = Logger(subsystem: "com.doncastle.mappath", category: "Extension")
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
