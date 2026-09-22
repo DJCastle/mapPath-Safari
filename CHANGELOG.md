@@ -10,10 +10,13 @@ rewritten changed — the parser itself is untouched — so every link that
 worked before works identically. The deployment floor stays at OS 26:
 Map Path is built against the 27 SDK but still runs on 26.
 
-- **Setup is one tap on iOS 26.2 and later.** "Open Settings" now opens
-  Settings directly on Map Path's own row under Safari Extensions,
-  instead of dropping you on the app's own settings page to find Safari
-  › Extensions yourself. Below 26.2 the previous path is unchanged.
+- **Setup is one tap on iOS 26.2 and later.** "Open Map Path settings"
+  now opens Settings directly on Map Path's own row under Safari
+  Extensions, instead of dropping you on the app's own settings page to
+  find Safari › Extensions yourself. The set-up instructions follow
+  suit: the "tap Apps, then Safari, then Extensions" directions are
+  hidden when the button already does that, since they'd contradict it.
+  On iOS 26.0 and 26.1 both the old button and the old steps remain.
 - **The parser now has a committed regression harness.**
   `scripts/test-parser.mjs` loads the shipped `content.js` in a fake-DOM
   `vm` context and asserts the never-worse-link rule across 25 cases,

@@ -52,8 +52,10 @@ final class OnboardingModel {
     /// True on return visits — drives the compact verification view instead of
     /// the full first-run setup.
     let isReturnVisit: Bool
-    /// iOS 17+ added the Settings → Apps → Safari level; older goes direct.
-    let iosModernSettingsPath: Bool
+    /// True when "Open Settings" lands on Map Path's own row (iOS 26.2+, via
+    /// SFSafariSettings). The manual "Apps → Safari → Extensions" directions
+    /// only make sense when it doesn't, so the copy switches on this.
+    let iosDeepLinksToExtension: Bool
     /// macOS extension enable state; always `.unknown` on iOS (no such API).
     var macState: MacExtensionState = .unknown
 
@@ -68,9 +70,9 @@ final class OnboardingModel {
 #endif
     }
 
-    init(isReturnVisit: Bool, iosModernSettingsPath: Bool, actions: OnboardingActions) {
+    init(isReturnVisit: Bool, iosDeepLinksToExtension: Bool, actions: OnboardingActions) {
         self.isReturnVisit = isReturnVisit
-        self.iosModernSettingsPath = iosModernSettingsPath
+        self.iosDeepLinksToExtension = iosDeepLinksToExtension
         self.actions = actions
     }
 }
@@ -105,10 +107,12 @@ class ViewController: PlatformViewController {
             defaults.set(true, forKey: Self.hasOpenedBeforeKey)
         }
 
+        // Does "Open Settings" land on Map Path's own row, or just on Settings?
+        // Only iOS 26.2+ can deep-link; on macOS the button opens the Safari
+        // Extensions pane and the iOS-only copy this drives is never shown.
+        var deepLinksToExtension = false
 #if os(iOS)
-        let modernPath = ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 17
-#else
-        let modernPath = true
+        if #available(iOS 26.2, *) { deepLinksToExtension = true }
 #endif
 
         var actions = OnboardingActions()
@@ -120,7 +124,7 @@ class ViewController: PlatformViewController {
 #endif
 
         let model = OnboardingModel(isReturnVisit: isReturnVisit,
-                                    iosModernSettingsPath: modernPath,
+                                    iosDeepLinksToExtension: deepLinksToExtension,
                                     actions: actions)
         self.model = model
 
@@ -536,23 +540,26 @@ private struct SetupStepsScreen: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
-                Text("Find Map Path")
+                Text(findHeading)
                     .font(.title2.bold())
                 Button {
                     model.actions.openSettings()
                 } label: {
-                    Label("Open the Settings app", systemImage: "arrow.up.forward.app")
+                    Label(openSettingsLabel, systemImage: "arrow.up.forward.app")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                if model.iosModernSettingsPath {
+                if model.iosDeepLinksToExtension {
+                    // The button lands on Map Path's own row, so listing the
+                    // Apps → Safari → Extensions taps would contradict it.
+                    Text("That opens Map Path's own page in Settings — nothing to hunt for.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                } else {
                     StepRow(1, "Tap **Apps** (near the bottom).")
                     StepRow(2, "Tap **Safari**.")
                     StepRow(3, "Tap **Extensions**, then **Map Path**.")
-                } else {
-                    StepRow(1, "Tap **Safari**.")
-                    StepRow(2, "Tap **Extensions**, then **Map Path**.")
                 }
 
                 Text("Flip these 3 switches")
@@ -605,6 +612,17 @@ private struct SetupStepsScreen: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+    }
+
+    // Kept as LocalizedStringKey-typed properties rather than inline ternaries:
+    // a ternary of bare literals infers String and picks Text's non-localizing
+    // overload, which would quietly drop these out of the String Catalog.
+    private var findHeading: LocalizedStringKey {
+        model.iosDeepLinksToExtension ? "Go straight to Map Path" : "Find Map Path"
+    }
+
+    private var openSettingsLabel: LocalizedStringKey {
+        model.iosDeepLinksToExtension ? "Open Map Path settings" : "Open the Settings app"
     }
 }
 
