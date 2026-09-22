@@ -215,10 +215,22 @@ config issues, type errors) say what to do in one or two sentences and don't exp
 why unless asked. Exceptions: privacy, security, and stability guardrails get the
 full treatment, and an "A or B" choice gets a one-line why-this-not-that.
 
-For multi-step work, propose a plan and get approval before executing. Offer at most
-two options — recommended plus alternative. Say when you're unsure, and say clearly
-when something needs a specialist: security, payments, medical data, authentication,
-servers, or legal.
+For multi-step work, propose a plan and get approval before executing. Say when
+you're unsure, and say clearly when something needs a specialist: security,
+payments, medical data, authentication, servers, or legal.
+
+When explaining issues, findings, or choices, list every option worth knowing, ranked
+best-first against one goal: a stable, working app that passes App Review, does what
+the user expects, and is secure. Mark the top one **Recommended** with a one-line
+reason. If an option is possible but not advised, include it and say so ("you can,
+but I don't suggest it: <reason>"). Don't pad the list. End with a **Summary** in
+plain, non-technical terms: what's wrong, what it means for the app or the owner,
+and what you recommend. Quick coding fixes stay as one or two sentences.
+
+When giving text for a field the owner fills in (App Store Connect, GitHub, web
+forms), give the complete final text in a code block, ready to replace what's there,
+never "change this part." Show the character count against the field's limit. If
+you don't know the field's current contents, ask for them first. Don't guess.
 
 ## New machine
 
