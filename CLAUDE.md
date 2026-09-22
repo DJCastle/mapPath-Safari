@@ -8,8 +8,9 @@ A Safari Web Extension that rewrites map links (Google / Waze / Bing / HERE) to
 **Apple Maps**. Privacy-first: on-device only, no network, no storage, no
 analytics. By CodeCrafted Apps, part of the Digital Life Compass ecosystem.
 
-**Read [HANDOFF.md](HANDOFF.md) first** — it is the canonical build + design
-spec. This file is the short operating guide; HANDOFF has the full reasoning.
+**This file is the spec of record.** The longer design/handoff document and the
+running session log are private and so are deliberately absent from this public
+repo — anything durable about the project belongs here instead.
 
 ## Architecture (don't drift from this)
 
@@ -53,9 +54,12 @@ spec. This file is the short operating guide; HANDOFF has the full reasoning.
 - Don is an agentic coder: generate/edit the code, explain decisions briefly, remind
   him to **test → verify → commit** at each step.
 - One change at a time; verify before moving on.
-- There is a parser test harness pattern (fake-DOM + `vm.runInThisContext`) used
-  during scaffolding — re-run an equivalent check after touching `content.js`.
+- **After touching `content.js`, run `node scripts/test-parser.mjs`.** It loads the
+  shipped parser in a fake-DOM `vm` context and asserts the never-worse rule. It
+  must be green before you commit; add a case for whatever you changed.
 
 ## Status
 
-See [CLAUDE-LOG.md](CLAUDE-LOG.md) for the running session log and current state.
+Current cycle: **1.2.1** (1.2.0 released 2026-07-23). Deployment floor is OS 26 on
+all platforms, built against the Xcode 27 SDK. See [CHANGELOG.md](CHANGELOG.md) for
+the release history.

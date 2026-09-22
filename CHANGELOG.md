@@ -3,6 +3,33 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.2.1] - Unreleased
+
+An OS 27 verification and stability pass. Nothing about how links are
+rewritten changed — the parser itself is untouched — so every link that
+worked before works identically. The deployment floor stays at OS 26:
+Map Path is built against the 27 SDK but still runs on 26.
+
+- **Setup is one tap on iOS 26.2 and later.** "Open Settings" now opens
+  Settings directly on Map Path's own row under Safari Extensions,
+  instead of dropping you on the app's own settings page to find Safari
+  › Extensions yourself. Below 26.2 the previous path is unchanged.
+- **The parser now has a committed regression harness.**
+  `scripts/test-parser.mjs` loads the shipped `content.js` in a fake-DOM
+  `vm` context and asserts the never-worse-link rule across 25 cases,
+  including the hostname-substring traps and the address-label fallback.
+- macOS extension-state polling moved from a repeating `Timer` to a
+  structured task, so it is cancelled with the window rather than
+  relying on the view to tear it down.
+- Dropped a redundant main-queue hop in the macOS state refresh — Safari
+  already delivers that callback on the main actor.
+- Removed dead code the converter left behind: availability branches for
+  iOS 15 / macOS 11, always true against an OS 26 floor.
+- Logging moved from `os_log` to the modern `Logger` API.
+- Doc accuracy: the polling-interval comment claimed one second where
+  the code polls every three, and `CLAUDE.md` linked two files that are
+  deliberately absent from this public repo.
+
 ## [1.2.0] - 2026-07-23
 
 The address finder release. Open the Map Path popup on any page and it

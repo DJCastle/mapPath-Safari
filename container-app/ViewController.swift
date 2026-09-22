@@ -9,15 +9,15 @@
 //  SafariServices calls stay here and are injected into SwiftUI as closures so
 //  the view layer carries no AppKit/UIKit imports.
 //
-//  macOS additionally polls the live extension state (every second while the
-//  window is open, plus an instant refresh when the app regains focus) so the
+//  macOS additionally polls the live extension state (every three seconds while
+//  the window is open, plus an instant refresh when the app regains focus) so the
 //  status updates the moment the user enables Map Path in Safari and returns.
 //
 
 import SwiftUI
 import Observation
 import TipKit
-import os.log
+import os
 
 #if os(iOS)
 import UIKit
@@ -25,16 +25,17 @@ typealias PlatformViewController = UIViewController
 typealias PlatformHostingController = UIHostingController
 #elseif os(macOS)
 import Cocoa
-import SafariServices
 typealias PlatformViewController = NSViewController
 typealias PlatformHostingController = NSHostingController
 #endif
 
-#if os(macOS)
-let extensionBundleIdentifier = "com.doncastle.mappath.Extension"
-#endif
+import SafariServices
 
-private let log = OSLog(subsystem: "com.doncastle.mappath", category: "Container")
+// The same identifier on both platforms: macOS reads the extension's state with
+// it, iOS 26.2+ uses it to deep-link into Safari Extensions settings.
+let extensionBundleIdentifier = "com.doncastle.mappath.Extension"
+
+private let log = Logger(subsystem: "com.doncastle.mappath", category: "Container")
 
 private let testPageURL = URL(string: "https://codecraftedapps.com/extensions/map-path/test.html")
 
@@ -87,7 +88,7 @@ class ViewController: PlatformViewController {
     private var model: OnboardingModel?
 
 #if os(macOS)
-    private var statePollTimer: Timer?
+    private var statePollTask: Task<Void, Never>?
 #endif
 
     override func viewDidLoad() {
@@ -166,41 +167,45 @@ class ViewController: PlatformViewController {
     // live (the system has no change notification for extension state).
     private func startStatePolling() {
         stopStatePolling()
-        statePollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-            self?.refreshMacState()
+        // A structured task rather than a Timer: cancellation is tied to the
+        // view's lifetime, so the loop can't outlive the window.
+        statePollTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(3))
+                guard !Task.isCancelled else { return }
+                self?.refreshMacState()
+            }
         }
     }
 
     private func stopStatePolling() {
-        statePollTimer?.invalidate()
-        statePollTimer = nil
+        statePollTask?.cancel()
+        statePollTask = nil
     }
 
     private func refreshMacState() {
+        // The completion handler is declared @MainActor, so it already arrives on
+        // the main actor — no queue hop needed before touching the model.
         SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { [weak self] state, error in
-            DispatchQueue.main.async {
-                guard let model = self?.model else { return }
-                if let error = error {
-                    os_log(.error, log: log,
-                           "Failed to read extension state: %{public}@", error.localizedDescription)
-                    return  // keep last known state — don't flip the UI on a transient error
-                }
-                let newState: OnboardingModel.MacExtensionState = (state?.isEnabled == true) ? .enabled : .disabled
-                // Only mutate when the value actually changes; assigning an
-                // @Observable property notifies observers even for an equal
-                // value, which would re-render (flash) the window every poll.
-                if model.macState != newState {
-                    model.macState = newState
-                }
+            guard let model = self?.model else { return }
+            if let error = error {
+                log.error("Failed to read extension state: \(error.localizedDescription, privacy: .public)")
+                return  // keep last known state — don't flip the UI on a transient error
+            }
+            let newState: OnboardingModel.MacExtensionState = (state?.isEnabled == true) ? .enabled : .disabled
+            // Only mutate when the value actually changes; assigning an
+            // @Observable property notifies observers even for an equal
+            // value, which would re-render (flash) the window every poll.
+            if model.macState != newState {
+                model.macState = newState
             }
         }
     }
 
     private func openSettings() {
         SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
-            if let error = error {
-                os_log(.error, log: log,
-                       "Failed to open Safari Extensions settings: %{public}@", error.localizedDescription)
+            if let error {
+                log.error("Failed to open Safari Extensions settings: \(error.localizedDescription, privacy: .public)")
             }
         }
     }
@@ -215,8 +220,19 @@ class ViewController: PlatformViewController {
     }
 #elseif os(iOS)
     private func openSettings() {
-        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-        UIApplication.shared.open(url)
+        // iOS 26.2 can open Settings straight to Map Path's own row under Safari
+        // Extensions. Below that the best available is the app's own Settings
+        // page, leaving the user to walk to Safari › Extensions themselves.
+        if #available(iOS 26.2, *) {
+            SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier]) { error in
+                if let error {
+                    log.error("Failed to open Safari Extensions settings: \(error.localizedDescription, privacy: .public)")
+                }
+            }
+        } else {
+            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+            UIApplication.shared.open(url)
+        }
     }
 
     private func openTestPage() {

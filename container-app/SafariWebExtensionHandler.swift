@@ -9,19 +9,18 @@
 //
 
 import SafariServices
-import os.log
+import os
+
+private let log = Logger(subsystem: "com.doncastle.mappath", category: "Extension")
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     func beginRequest(with context: NSExtensionContext) {
         let request = context.inputItems.first as? NSExtensionItem
 
-        let message: [String: Any]?
-        if #available(iOS 15.0, macOS 11.0, *) {
-            message = request?.userInfo?[SFExtensionMessageKey] as? [String: Any]
-        } else {
-            message = request?.userInfo?["message"] as? [String: Any]
-        }
+        // SFExtensionMessageKey needs iOS 15 / macOS 11; the deployment floor is
+        // 26, so the legacy "message" key path the converter generated is dead.
+        let message = request?.userInfo?[SFExtensionMessageKey] as? [String: Any]
 
         var payload: [String: Any] = ["ok": false]
         if let message,
@@ -29,15 +28,11 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
            let text = message["text"] as? String {
             payload = Self.findAddresses(in: text)
         } else {
-            os_log(.error, "Map Path: unrecognized native message")
+            log.error("Map Path: unrecognized native message")
         }
 
         let response = NSExtensionItem()
-        if #available(iOS 15.0, macOS 11.0, *) {
-            response.userInfo = [SFExtensionMessageKey: payload]
-        } else {
-            response.userInfo = ["message": payload]
-        }
+        response.userInfo = [SFExtensionMessageKey: payload]
         context.completeRequest(returningItems: [response], completionHandler: nil)
     }
 
