@@ -106,9 +106,20 @@ specialist review is warranted. Don't overstate confidence.
 
 - SwiftUI + SwiftData/CloudKit + HealthKit. No Storyboards or XIBs. Swift 6 strict
   concurrency.
-- **OS 26 is the deployment-target floor** (iOS/macOS/watchOS 26+). Default every
-  project to 26 or higher; if one is set below 26, flag it and ask whether to keep
-  the lower floor or raise it — never leave a sub-26 target silently in place.
+- **Deployment floor tracks the current major until first release.** Any project
+  not yet on the App Store follows the newest shipped major, however long it has
+  been in development — nothing is installed anywhere, so there is nobody to
+  strand. The floor freezes at first App Store release: not at first commit, not
+  at TestFlight, not at submission. After that, raising it needs App Store Connect
+  adoption numbers, not the calendar. One brake: if a major ships after feature
+  freeze, release at the current floor and bump in the next cycle. The adoption
+  requirement only bites once there is an installed base worth protecting — an app
+  days old can still move freely; check the numbers before assuming a bump costs
+  anything. All targets in a project carry the same floor. As of Sept 2026 —
+  unreleased projects 27, shipped apps hold their release floor. Apple's only hard
+  requirement is the *build* SDK (latest, by each spring deadline); "n-2" is
+  industry convention, not Apple policy. Scenario-by-scenario breakdown lives in
+  the `release-readiness` agent, which asks the question at each submission.
 - Code must be idiomatic Apple — the way Apple's own frameworks and sample code do
   it, not merely code that compiles.
 - No force unwraps (`!`) or force casts (`as!`) in production — use `guard let` or
