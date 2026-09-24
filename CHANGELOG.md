@@ -24,8 +24,12 @@ Map Path is built against the 27 SDK but still runs on 26.
 - macOS extension-state polling moved from a repeating `Timer` to a
   structured task, so it is cancelled with the window rather than
   relying on the view to tear it down.
-- Dropped a redundant main-queue hop in the macOS state refresh — Safari
-  already delivers that callback on the main actor.
+- The macOS state refresh and the iOS Settings deep-link now use the
+  `async` forms of their SafariServices calls. The completion-handler
+  forms are declared main-actor in the SDK, but Safari invokes them on a
+  background XPC queue; under Swift 6 that mismatch is checked at
+  runtime and trapped. Build 21 shipped the completion-handler form on
+  macOS and crashed on launch — caught in TestFlight, fixed in build 22.
 - Removed dead code the converter left behind: availability branches for
   iOS 15 / macOS 11, always true against an OS 26 floor.
 - Logging moved from `os_log` to the modern `Logger` API.

@@ -191,27 +191,38 @@ class ViewController: PlatformViewController {
     }
 
     private func refreshMacState() {
-        // The completion handler is declared @MainActor, so it already arrives on
-        // the main actor — no queue hop needed before touching the model.
-        SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { [weak self] state, error in
-            guard let model = self?.model else { return }
-            if let error = error {
+        // Use the async form, not the completion-handler form. The header marks
+        // that handler NS_SWIFT_UI_ACTOR, but Safari invokes it on a background
+        // XPC queue; Swift 6 checks the main-actor isolation at runtime and traps
+        // (the 1.2.1 build-21 launch crash). No closure annotation avoids that,
+        // because the parameter's type imposes the isolation. The async bridge
+        // resumes a continuation instead, and `await` returns to the main actor.
+        Task { [weak self] in
+            do {
+                let state = try await SFSafariExtensionManager.stateOfSafariExtension(
+                    withIdentifier: extensionBundleIdentifier)
+                guard let model = self?.model else { return }
+                let newState: OnboardingModel.MacExtensionState = state.isEnabled ? .enabled : .disabled
+                // Only mutate when the value actually changes; assigning an
+                // @Observable property notifies observers even for an equal
+                // value, which would re-render (flash) the window every poll.
+                if model.macState != newState {
+                    model.macState = newState
+                }
+            } catch {
+                // Keep the last known state — don't flip the UI on a transient error.
                 log.error("Failed to read extension state: \(error.localizedDescription, privacy: .public)")
-                return  // keep last known state — don't flip the UI on a transient error
-            }
-            let newState: OnboardingModel.MacExtensionState = (state?.isEnabled == true) ? .enabled : .disabled
-            // Only mutate when the value actually changes; assigning an
-            // @Observable property notifies observers even for an equal
-            // value, which would re-render (flash) the window every poll.
-            if model.macState != newState {
-                model.macState = newState
             }
         }
     }
 
     private func openSettings() {
-        SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
-            if let error {
+        // Async form, per the project rule: Safari's replies arrive off the main
+        // thread, so no completion closure that could inherit MainActor isolation.
+        Task {
+            do {
+                try await SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier)
+            } catch {
                 log.error("Failed to open Safari Extensions settings: \(error.localizedDescription, privacy: .public)")
             }
         }
@@ -231,8 +242,13 @@ class ViewController: PlatformViewController {
         // Extensions. Below that the best available is the app's own Settings
         // page, leaving the user to walk to Safari › Extensions themselves.
         if #available(iOS 26.2, *) {
-            SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier]) { error in
-                if let error {
+            // Async form for the same reason as refreshMacState on macOS: the
+            // handler is declared UI-actor, and if Safari ever calls it off the
+            // main thread, Swift 6's runtime isolation check would crash the app.
+            Task {
+                do {
+                    try await SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier])
+                } catch {
                     log.error("Failed to open Safari Extensions settings: \(error.localizedDescription, privacy: .public)")
                 }
             }

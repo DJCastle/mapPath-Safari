@@ -32,6 +32,12 @@ repo — anything durable about the project belongs here instead.
   isolation bug), deployment targets `26.0` for iOS and macOS (floor is OS 26
   even though we build against the 27 SDK), and `MARKETING_VERSION` /
   `CURRENT_PROJECT_VERSION` matching `extension/manifest.json` and CHANGELOG.
+- **Call SafariServices through its `async` forms, never with a completion
+  closure.** Handlers such as `getStateOfSafariExtension` are declared
+  `NS_SWIFT_UI_ACTOR`, but Safari calls them on a background XPC queue. Swift 6
+  gives the closure main-actor isolation from the parameter type — marking it
+  `@Sendable` doesn't change that — and its runtime check traps. That shipped as
+  a launch crash in 1.2.1 build 21. `try await …` resumes a continuation instead.
 - **Classify sources by hostname, not substring.** `"here.com".includes` matches
   `atmosphere.com`; the parser uses parsed `u.hostname` + path instead. Keep it
   that way.
