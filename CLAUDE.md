@@ -73,6 +73,7 @@ repo — anything durable about the project belongs here instead.
 
 ## Status
 
-Current cycle: **1.2.1** (1.2.0 released 2026-07-23). Deployment floor is OS 26 on
+Latest release: **1.2.1** (build 22, submitted 2026-09-24, live on iOS and macOS).
+No cycle is open — bump the version when the next one starts. Deployment floor is OS 26 on
 all platforms, built against the Xcode 27 SDK. See [CHANGELOG.md](CHANGELOG.md) for
 the release history.

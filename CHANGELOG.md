@@ -3,7 +3,7 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.2.1] - Unreleased
+## [1.2.1] - 2026-09-24
 
 An OS 27 verification and stability pass. Nothing about how links are
 rewritten changed — the parser itself is untouched — so every link that
