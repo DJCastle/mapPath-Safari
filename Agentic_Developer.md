@@ -211,6 +211,30 @@ at cycle start. Numbering: X.0 for a big change, X.Y for a feature, X.Y.Z for a
 quick fix. No standing release branches; hotfix from the tag only when two versions
 are in flight, then cherry-pick back.
 
+## Roadmap
+
+`ROADMAP.md` at the repo root is the owner's quick view of what's planned. It opens
+with an "At a glance" list, which the status page reads; detail goes below it,
+free-form.
+
+```markdown
+## At a glance
+
+### Next
+- fix: Crash when the folder is empty · S · 1.1
+### Planned
+- feature: Type-to-search in the list · M
+### Ideas
+- update: Move settings to a sheet
+```
+
+- One line per item: `kind: text`, then optional ` · effort` and ` · version`. Kind
+  is `feature`, `fix` or `update`. Effort is XS, S, M or L.
+- Update it in the same commit as the work: add what's newly planned, move what
+  changed priority, delete what shipped. The changelog and tags record shipped work.
+- Public repos have no `ROADMAP.md`; their roadmap is kept privately outside the
+  repo. Don't create one in a public repo.
+
 ## Before anything goes public
 
 Flag for review: personal email addresses (anything not `@codecraftedapps.com`),
