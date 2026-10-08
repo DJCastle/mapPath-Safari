@@ -3,7 +3,10 @@
 
 # Generated Xcode container app + extension (build artifact — regenerate with the
 # safari-web-extension-converter; `extension/` is the canonical source of truth).
-/Map Path/
+/Map Path/*
+# ...except the pointer that loads this repo's rules into Xcode's agent,
+# which opens in Map Path/. Regenerating the tree would otherwise lose it.
+!/Map Path/CLAUDE.md
 *.xcodeproj
 *.xcworkspace
 DerivedData/
