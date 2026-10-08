@@ -148,8 +148,8 @@ specialist review is warranted. Don't overstate confidence.
 
 - macOS-native paths and tools first. Don't suggest Linux-only solutions unless
   explicitly asked.
-- No Raspberry Pi or self-hosted-server solutions — that infrastructure is
-  retired and isn't coming back.
+- No Raspberry Pi or self-hosted-server solutions in a project. (The home
+  Homebridge Pi is a separate, maintained setup, not a pattern to reuse.)
 - **Browser work: run `~/.claude/bin/ai-chrome` first.** It opens Chrome in
   the dedicated AI profile, where the Claude in Chrome extension is installed
   and Cloudflare and GitHub are signed in. Don't ask Don to open Chrome or
