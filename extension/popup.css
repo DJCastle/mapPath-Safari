@@ -155,6 +155,9 @@ main { margin: 12px; }
   font-size: 0.75em;
   color: var(--muted);
 }
+/* Narrow popups (iPhone sheet) wrap this line; break only between the
+   dot-separated segments, never inside "help & FAQ" or before the version. */
+.links .seg { white-space: nowrap; }
 .links a {
   color: var(--blue);
   text-decoration: none;

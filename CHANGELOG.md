@@ -3,6 +3,33 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.2.2] - Unreleased
+
+The iPhone Duo release. The parser is untouched, so every link that
+worked before works identically; the two code changes are small
+hardening and polish. This cycle exists so the App Store listing is
+ready for the foldable iPhone.
+
+- **Verified on iPhone Duo.** The container app uses scene lifecycle and
+  size-driven SwiftUI layout with no screen, orientation or device-idiom
+  assumptions, so it resizes correctly between the outer and inner
+  displays. Checked in the iPhone Duo simulator, closed and open.
+- **Fixed on the Duo's inner display:** the "New: find addresses" tip
+  card drew taller than the height it reported, so "Setup complete? Tap
+  below to test." painted over its lower half. The card now takes its
+  ideal height; no other size class changes.
+- **"Open Settings" always lands somewhere.** If the iOS 26.2+ deep link
+  into Safari Extensions settings reports an error, the button now falls
+  back to the app's own Settings page instead of doing nothing. (The iOS
+  27.2 simulator accepts the deep link but its Settings app stays on the
+  root list — a simulator limitation; devices navigate to Map Path's row.)
+- **Popup footer wraps cleanly** on narrow iPhone sheets: the line breaks
+  only between its dot-separated segments, never inside "help & FAQ" or
+  before the version number.
+- **New App Store screenshots** for iPhone, iPad, Mac and iPhone Duo, in
+  the framed style with headlines, generated from raw captures by
+  `scripts/frame-screenshots.swift` so they can be regenerated exactly.
+
 ## [1.2.1] - 2026-09-24
 
 An OS 27 verification and stability pass. Nothing about how links are

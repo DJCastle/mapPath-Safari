@@ -249,13 +249,22 @@ class ViewController: PlatformViewController {
                 do {
                     try await SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier])
                 } catch {
+                    // Documented to fail when the app isn't foreground; seen to
+                    // fail on the iOS 27.2 simulator too. Rather than a dead
+                    // button, land on the app's own Settings page — the same
+                    // place iOS 26.0/26.1 go — so the user still gets somewhere.
                     log.error("Failed to open Safari Extensions settings: \(error.localizedDescription, privacy: .public)")
+                    openAppSettingsPage()
                 }
             }
         } else {
-            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-            UIApplication.shared.open(url)
+            openAppSettingsPage()
         }
+    }
+
+    private func openAppSettingsPage() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
 
     private func openTestPage() {
@@ -405,7 +414,12 @@ private struct VerificationView: View {
 
     var body: some View {
         VStack(spacing: 14) {
+            // On the iPhone Duo's inner display (regular width, landscape)
+            // TipView draws its card taller than the height it reports, so
+            // the next row paints over its lower half. Letting it take its
+            // ideal height fixes that without touching any other size class.
             TipView(FinderTip())
+                .fixedSize(horizontal: false, vertical: true)
 #if os(macOS)
             MacStatusView(state: model.macState)
             Button("Recheck") { model.actions.recheck() }
