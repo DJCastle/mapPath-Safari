@@ -1,0 +1,188 @@
+{
+  "outputDir": ".",
+  "sets": [
+    {
+      "name": "iphone",
+      "width": 1320,
+      "height": 2868,
+      "cornerRadius": 165,
+      "items": [
+        {
+          "input": "raw/iphone/welcome.png",
+          "output": "iphone-1.png",
+          "headline": "Any map link.\nApple Maps."
+        },
+        {
+          "input": "raw/iphone/safari.png",
+          "output": "iphone-2.png",
+          "headline": "Already Apple Maps,\nbefore you tap."
+        },
+        {
+          "input": "raw/iphone/maps.png",
+          "output": "iphone-3.png",
+          "headline": "Lands exactly\nwhere you expected."
+        },
+        {
+          "input": "raw/iphone/popup.png",
+          "output": "iphone-4.png",
+          "headline": "Finds addresses\non any page."
+        },
+        {
+          "input": "raw/iphone/settings.png",
+          "output": "iphone-5.png",
+          "headline": "Three switches.\nDone."
+        },
+        {
+          "input": "raw/iphone/privacy.png",
+          "output": "iphone-6.png",
+          "headline": "Private by design.\nNothing leaves your device."
+        }
+      ]
+    },
+    {
+      "name": "ipad",
+      "width": 2064,
+      "height": 2752,
+      "cornerRadius": 72,
+      "items": [
+        {
+          "input": "raw/ipad/welcome.png",
+          "output": "ipad-1.png",
+          "headline": "Any map link.\nApple Maps."
+        },
+        {
+          "input": "raw/ipad/safari.png",
+          "output": "ipad-2.png",
+          "headline": "Already Apple Maps,\nbefore you tap."
+        },
+        {
+          "input": "raw/ipad/maps.png",
+          "output": "ipad-3.png",
+          "headline": "Lands exactly\nwhere you expected."
+        },
+        {
+          "input": "raw/ipad/popup.png",
+          "output": "ipad-4.png",
+          "headline": "Finds addresses\non any page."
+        },
+        {
+          "input": "raw/ipad/settings.png",
+          "output": "ipad-5.png",
+          "headline": "Three switches.\nDone."
+        },
+        {
+          "input": "raw/ipad/privacy.png",
+          "output": "ipad-6.png",
+          "headline": "Private by design.\nNothing leaves your device."
+        }
+      ]
+    },
+    {
+      "name": "duo",
+      "width": 1398,
+      "height": 2034,
+      "cornerRadius": 140,
+      "items": [
+        {
+          "input": "raw/duo/welcome.png",
+          "output": "duo-1.png",
+          "headline": "Any map link.\nApple Maps."
+        },
+        {
+          "input": "raw/duo/safari.png",
+          "output": "duo-2.png",
+          "headline": "Already Apple Maps,\nbefore you tap."
+        },
+        {
+          "input": "raw/duo/maps.png",
+          "output": "duo-3.png",
+          "headline": "Lands exactly\nwhere you expected."
+        },
+        {
+          "input": "raw/duo/popup.png",
+          "output": "duo-4.png",
+          "headline": "Finds addresses\non any page."
+        },
+        {
+          "input": "raw/duo/settings.png",
+          "output": "duo-5.png",
+          "headline": "Three switches.\nDone."
+        },
+        {
+          "input": "raw/duo/privacy.png",
+          "output": "duo-6.png",
+          "headline": "Private by design.\nNothing leaves your device."
+        }
+      ]
+    },
+    {
+      "name": "duo-inner",
+      "width": 2853,
+      "height": 2007,
+      "cornerRadius": 90,
+      "items": [
+        {
+          "input": "raw/duo-inner/welcome.png",
+          "output": "duo-7.png",
+          "headline": "Any map link.\nApple Maps."
+        },
+        {
+          "input": "raw/duo-inner/safari.png",
+          "output": "duo-8.png",
+          "headline": "Already Apple Maps,\nbefore you tap."
+        },
+        {
+          "input": "raw/duo-inner/maps.png",
+          "output": "duo-9.png",
+          "headline": "Lands exactly\nwhere you expected."
+        },
+        {
+          "input": "raw/duo-inner/popup.png",
+          "output": "duo-10.png",
+          "headline": "Finds addresses\non any page."
+        }
+      ]
+    },
+    {
+      "name": "macos",
+      "layout": "landscape",
+      "width": 2880,
+      "height": 1800,
+      "cornerRadius": 26,
+      "items": [
+        {
+          "input": "raw/macos/welcome.png",
+          "output": "macos-1.png",
+          "headline": "Any map link.\nApple Maps."
+        },
+        {
+          "input": "raw/macos/hover.png",
+          "output": "macos-2.png",
+          "headline": "Already Apple Maps,\nbefore you click.",
+          "callout": {
+            "x": 0.004,
+            "y": 0.9745,
+            "w": 0.335,
+            "h": 0.0175,
+            "scale": 2.6
+          }
+        },
+        {
+          "input": "raw/macos/maps.png",
+          "output": "macos-3.png",
+          "headline": "Lands exactly\nwhere you expected."
+        },
+        {
+          "input": "raw/macos/popup.png",
+          "output": "macos-4.png",
+          "headline": "Finds addresses\non any page."
+        },
+        {
+          "input": "raw/macos/enabled.png",
+          "output": "macos-5.png",
+          "headline": "One switch in Safari.\nDone."
+        }
+      ]
+    }
+  ]
+}
