@@ -1,0 +1,8 @@
+Ready for iPhone Duo. Map Path's layout is verified on the foldable iPhone, open and closed, including a fix for a tip card that overlapped the setup text on the inner display.
+
+Also in this release:
+• "Open Settings" always lands somewhere: if the direct link into Safari Extensions settings fails, it opens Map Path's own Settings page instead.
+• The popup's footer wraps cleanly on narrow screens.
+• New App Store screenshots for iPhone, iPad, Mac and iPhone Duo.
+
+Nothing about how links are rewritten changed — every link that worked before works exactly the same.

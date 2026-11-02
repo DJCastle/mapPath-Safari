@@ -74,7 +74,7 @@ repo — anything durable about the project belongs here instead.
 ## Status
 
 Latest release: **1.2.1** (build 22, submitted 2026-09-24, live on iOS and macOS).
-**Cycle open: 1.2.2 (build 23)** — the iPhone Duo release; archived for iOS and macOS
+**Cycle open: 1.2.2 (build 24)** — the iPhone Duo release; archived for iOS and macOS
 on 2026-11-01, awaiting Don's device test and submission. Deployment floor is OS 26 on
 all platforms, built against the Xcode 27 SDK. See [CHANGELOG.md](CHANGELOG.md) for
 the release history.
