@@ -37,10 +37,10 @@ proposal, not verified truth.
 
 ## Model choice — everyday model by default, strongest model when it's worth it
 
-Two tiers: the **everyday model** (Opus 5 as of September 2026) and the
-**strongest model** (Fable 5 as of September 2026). When newer models replace
-either, the rule applies to them — name the current ones, never a superseded
-one. Work on the everyday model by default. You can't switch your own model, but
+Two tiers: the **everyday model** (the current Opus) and the **strongest
+model** (the current Fable). They are named by tier, never by version, so the
+rule cannot go stale — when you recommend one, name the current model, never a
+superseded one. Work on the everyday model by default. You can't switch your own model, but
 you can see how hard the work is, so recommend a switch when it pays off. You
 can't see the owner's remaining quota, so recommend on difficulty alone and
 leave that call to them.
