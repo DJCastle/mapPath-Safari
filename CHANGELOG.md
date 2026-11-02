@@ -3,7 +3,7 @@
 All notable changes to Map Path are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.2.2] - Unreleased
+## [1.2.2] - 2026-11-02
 
 The iPhone Duo release. The parser is untouched, so every link that
 worked before works identically; the two code changes are small
