@@ -74,6 +74,12 @@ repo — anything durable about the project belongs here instead.
 ## Status
 
 Latest release: **1.2.1** (build 22, submitted 2026-09-24, live on iOS and macOS).
-No cycle is open — bump the version when the next one starts. Deployment floor is OS 26 on
+**Cycle open: 1.2.2 (build 23)** — the iPhone Duo release; archived for iOS and macOS
+on 2026-11-01, awaiting Don's device test and submission. Deployment floor is OS 26 on
 all platforms, built against the Xcode 27 SDK. See [CHANGELOG.md](CHANGELOG.md) for
 the release history.
+
+Screenshots: `screenshots/frames.json` + `scripts/frame-screenshots.swift` regenerate
+every App Store image from `screenshots/raw/`; see `screenshots/README.md`. The Duo
+simulator's fold state is a Device Hub control in Xcode — `simctl` cannot fold it —
+and its two displays are `--display=1` (outer) and `--display=3` (inner).
