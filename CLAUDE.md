@@ -79,6 +79,13 @@ on 2026-11-01, awaiting Don's device test and submission. Deployment floor is OS
 all platforms, built against the Xcode 27 SDK. See [CHANGELOG.md](CHANGELOG.md) for
 the release history.
 
+Release mechanics: `scripts/release-asc.sh` drives App Store Connect from the CLI
+(`status` for a read-only health check of versions, builds, TestFlight, every
+screenshot slot and the notes; `plan` → `upload-builds` → `versions` → `screenshots`
+→ `whats-new` → `attach-build` → `submit`, each a dry run until `--apply`). Build
+upload via CLI needs the API key to have cloud-managed signing; otherwise upload
+the archives from Xcode's Organizer and run the rest.
+
 Screenshots: `screenshots/frames.json` + `scripts/frame-screenshots.swift` regenerate
 every App Store image from `screenshots/raw/`; see `screenshots/README.md`. The Duo
 simulator's fold state is a Device Hub control in Xcode — `simctl` cannot fold it —

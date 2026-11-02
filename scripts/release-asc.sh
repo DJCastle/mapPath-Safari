@@ -5,6 +5,8 @@
 # the build, and submit for review.
 #
 #   scripts/release-asc.sh plan                 # read-only: what exists, what would change
+#   scripts/release-asc.sh status               # read-only: full release health check — versions,
+#                                               #   builds, TestFlight, every slot vs. local files, notes
 #   scripts/release-asc.sh upload-builds --apply  # export + upload today's Map Path archives
 #   scripts/release-asc.sh versions --apply       # create 1.2.2 on iOS and macOS if missing
 #   scripts/release-asc.sh screenshots --apply    # replace every slot from screenshots/
@@ -303,6 +305,83 @@ cmd_submit() {
   done
 }
 
+
+# ---------------------------------------------------------------- status
+
+# A read-only health check of the whole release. Each line is PASS/WARN/FAIL
+# so it can be read at a glance or grepped; exit 1 if anything FAILs.
+cmd_status() {
+  local fails=0
+  mark() { # mark <PASS|WARN|FAIL> <text>
+    case "$1" in PASS) say "  ✓ $2";; WARN) say "  ! $2";; FAIL) say "  ✗ $2"; fails=$((fails+1));; esac
+  }
+  say "== Repo"
+  local cl; cl=$(grep -c "## \[$VERSION\]" "$ROOT/CHANGELOG.md" || true)
+  [[ "$cl" -ge 1 ]] && mark PASS "CHANGELOG has a $VERSION entry" || mark FAIL "CHANGELOG has no $VERSION entry"
+  grep -q "Cycle open: $VERSION (build $BUILD)\|Latest release: \*\*$VERSION\*\* (build $BUILD" "$ROOT/CLAUDE.md" && mark PASS "CLAUDE.md names $VERSION build $BUILD" || mark WARN "CLAUDE.md does not mention $VERSION build $BUILD"
+  [[ -z "$(git -C "$ROOT" status --porcelain)" ]] && mark PASS "working tree clean" || mark WARN "uncommitted changes in the repo"
+  [[ -r "$WHATS_NEW" ]] && mark PASS "work/whats-new.txt present ($(wc -c <"$WHATS_NEW" | tr -d ' ') chars)" || mark FAIL "work/whats-new.txt missing"
+
+  say "== Archives for $VERSION ($BUILD)"
+  local arcs; arcs=$(find_archives)
+  [[ -n "$arcs" ]] && sed 's/^/  ✓ /' <<<"$arcs" || mark WARN "no local archives (fine if already uploaded)"
+
+  for plat in IOS MAC_OS; do
+    say "== $plat"
+    local vid; vid=$(version_id "$plat")
+    [[ -n "$vid" ]] || { mark FAIL "$VERSION not created"; continue; }
+    mark PASS "$VERSION exists — $(version_state "$vid")"
+    # build on the version
+    local vb; vb=$("$ASC" GET "/v1/appStoreVersions/$vid/build?fields[builds]=version,processingState" 2>/dev/null | json 'b=d.get("data"); print((b["attributes"]["version"]+" "+b["attributes"]["processingState"]) if b else "")')
+    if [[ "$vb" == "$BUILD VALID" ]]; then mark PASS "build $BUILD attached and VALID"
+    elif [[ -z "$vb" ]]; then mark FAIL "no build attached"
+    else mark WARN "attached build is '$vb', expected $BUILD VALID"; fi
+    # TestFlight state of build $BUILD
+    local bid; bid=$("$ASC" GET "/v1/builds?filter[app]=$APP_ID&filter[version]=$BUILD&filter[preReleaseVersion.platform]=$plat&limit=1" 2>/dev/null | json 'print(d["data"][0]["id"] if d["data"] else "")')
+    if [[ -n "$bid" ]]; then
+      "$ASC" GET "/v1/builds/$bid/buildBetaDetail" 2>/dev/null | json 'a=d["data"]["attributes"]; print("  · TestFlight internal:", a.get("internalBuildState"), "| external:", a.get("externalBuildState"))'
+      local enc; enc=$("$ASC" GET "/v1/builds/$bid?fields[builds]=usesNonExemptEncryption" 2>/dev/null | json 'print(d["data"]["attributes"].get("usesNonExemptEncryption"))')
+      [[ "$enc" == "None" ]] && mark WARN "export compliance unanswered (ITSAppUsesNonExemptEncryption missing?)" || mark PASS "export compliance set (usesNonExemptEncryption=$enc)"
+    else
+      mark FAIL "build $BUILD not found in App Store Connect"
+    fi
+    # localization: notes + screenshots
+    local loc; loc=$(localization_id "$vid")
+    local wn; wn=$("$ASC" GET "/v1/appStoreVersionLocalizations/$loc?fields[appStoreVersionLocalizations]=whatsNew" 2>/dev/null \
+      | "$PY" -I -c 'import json,sys; r=(json.load(sys.stdin)["data"]["attributes"].get("whatsNew") or "").replace("\r\n","\n").strip(); l=open(sys.argv[1]).read().strip() if len(sys.argv)>1 else ""; print("EMPTY" if not r else ("MATCH" if r==l else "DIFF"), len(r))' "$WHATS_NEW")
+    case "$wn" in
+      EMPTY*) mark FAIL "What's New empty" ;;
+      MATCH*) mark PASS "What's New set (${wn#MATCH } chars, matches work/whats-new.txt)" ;;
+      *)      mark WARN "What's New set (${wn#DIFF } chars) but differs from work/whats-new.txt" ;;
+    esac
+    local slots=(); if [[ "$plat" == "IOS" ]]; then slots=("${IOS_SLOTS[@]}"); else slots=("${MAC_SLOTS[@]}"); fi
+    "$ASC" GET "/v1/appStoreVersionLocalizations/$loc/appScreenshotSets?include=appScreenshots&fields[appScreenshots]=fileName,sourceFileChecksum,assetDeliveryState" 2>/dev/null >"$WORK/sets-$plat.json"
+    for slot in "${slots[@]}"; do
+      IFS='|' read -r TYPE NAMES <<<"$slot"
+      local want=""; for n in $NAMES; do want+="$n.png:$(md5 -q "$SHOTS/$n.png") "; done
+      local got; got=$("$PY" -I -c '
+import json,sys
+d=json.load(open(sys.argv[1])); t=sys.argv[2]; inc={x["id"]:x for x in d.get("included",[])}
+for s in d["data"]:
+    if s["attributes"]["screenshotDisplayType"]!=t: continue
+    ids=[r["id"] for r in s["relationships"]["appScreenshots"]["data"]]
+    bad=[inc[i]["attributes"]["fileName"] for i in ids if (inc[i]["attributes"].get("assetDeliveryState") or {}).get("state")!="COMPLETE"]
+    print(" ".join("%s:%s" % (inc[i]["attributes"]["fileName"], inc[i]["attributes"].get("sourceFileChecksum")) for i in ids), "|", " ".join(bad)); break
+else: print("MISSING |")' "$WORK/sets-$plat.json" "$TYPE")
+      local gotlist="${got%%|*}" bad="${got##*| }"
+      if [[ "$gotlist" == "MISSING " || -z "${gotlist// }" ]]; then mark FAIL "$TYPE: no set / empty"
+      elif [[ -n "${bad// }" ]]; then mark WARN "$TYPE: not all processed: $bad"
+      elif [[ "${gotlist% }" == "${want% }" ]]; then mark PASS "$TYPE: $(wc -w <<<"$NAMES" | tr -d ' ') shots, order and checksums match local files"
+      else mark WARN "$TYPE: differs from local — remote: $(sed -E 's/:[0-9a-f]{32}//g' <<<"$gotlist")"; fi
+    done
+    # review submission
+    "$ASC" GET "/v1/reviewSubmissions?filter[app]=$APP_ID&filter[platform]=$plat&filter[state]=READY_FOR_REVIEW,WAITING_FOR_REVIEW,IN_REVIEW,UNRESOLVED_ISSUES,COMPLETING&limit=1&fields[reviewSubmissions]=state,submittedDate" 2>/dev/null \
+      | json 'r=d["data"]; print("  · review submission:", (r[0]["attributes"]["state"]+" "+str(r[0]["attributes"].get("submittedDate") or "")) if r else "none yet")'
+  done
+  say
+  [[ $fails -eq 0 ]] && say "All checks passed." || { say "$fails check(s) FAILED."; exit 1; }
+}
+
 # ---------------------------------------------------------------- plan
 
 cmd_plan() {
@@ -328,11 +407,12 @@ if not d["data"]: print("   none")'
 
 case "$CMD" in
   plan) cmd_plan ;;
+  status) cmd_status ;;
   upload-builds) cmd_upload_builds ;;
   versions) cmd_versions ;;
   screenshots) cmd_screenshots ;;
   whats-new) cmd_whats_new ;;
   attach-build) cmd_attach_build ;;
   submit) cmd_submit ;;
-  *) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 64 ;;
+  *) sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 64 ;;
 esac
