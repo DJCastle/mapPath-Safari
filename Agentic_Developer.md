@@ -191,6 +191,28 @@ complication, Live Activity.
   session — the primary screen is the likeliest to have been missed, because it's
   the one that "obviously works."
 
+## Brand color — one accent per product, system everything else
+
+- Applies to every product with a page on codecraftedapps.com. Projects
+  without one skip it.
+- Each product's accent is its color on codecraftedapps.com: the `.app-<name>`
+  block in that site's CSS (dark value) and its "Per-app accents, light shades"
+  block (light value). That is the source of truth; don't invent a new one. If
+  a product changes color, change the site too.
+- **Apple apps:** set the `AccentColor` asset to those light/dark values. Leave
+  backgrounds, text and controls on system colors. Never force the accent over
+  the user's choice: on macOS a fixed accent in System Settings replaces the
+  app's, and that is correct. Check light mode, dark mode, Increase Contrast and
+  a non-default system accent before committing.
+- **Browser extensions and web pages:** one `--accent` token with light/dark
+  values via `prefers-color-scheme`; native controls follow it through
+  `accent-color`. Backgrounds stay neutral. Text on the accent clears 4.5:1.
+- **Launch and onboarding art** is transparent or has a dark variant — never a
+  light image on a dark screen.
+- **Reminder:** at the start of a session in a product whose accent doesn't
+  match its site color yet, say so in one line and offer to fix it in that
+  update. The product's `ROADMAP.md` carries the specifics.
+
 ## Git hygiene
 
 - Never `push --force` to main or master. Never `--no-verify`. Never amend pushed
