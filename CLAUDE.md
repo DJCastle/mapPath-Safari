@@ -49,7 +49,7 @@ repo — anything durable about the project belongs here instead.
 ## Constraints
 
 - **No storage** in v1.0. If a toggle is added, `storage.local` only, never sync.
-- **Platforms:** macOS, iOS, iPadOS, visionOS. **Not tvOS.**
+- **Platforms:** macOS, iOS, iPadOS. **Not visionOS** (not offered on the App Store listing; README says so) **and not tvOS.**
 - **Bundle ID:** `com.doncastle.mappath` (verify against App Store Connect
   before first archive).
 - **Public repo** → no personal data. Contact via
