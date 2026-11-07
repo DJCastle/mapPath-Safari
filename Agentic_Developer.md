@@ -312,10 +312,6 @@ project, so it only ever gets checked here.
   `CLAUDE-LOG.md`, `AGENTS.md`, `HANDOFF.md` and `ROADMAP.md` out of public
   repos. A rebuilt Mac has dropped it before, and the next session committed
   internal notes into a public repo. Nothing else checks this.
-- **Nightly backup.** Is the LaunchAgent loaded *and* pointing at a path that
-  exists — `launchctl print gui/$(id -u)/com.codecraftedapps.backup-now`? It
-  has been loaded, scheduled, and running a deleted path while reporting
-  nothing wrong.
 - **Time Machine.** Is it configured and current?
 - **Commit signing.** `git config --get gpg.format` and `user.signingkey`.
   Unsigned commits show Unverified on GitHub and git never complains.
