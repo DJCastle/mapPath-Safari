@@ -29,6 +29,11 @@ proposal, not verified truth.
   to ship faster.
 - Always show a script before running it. Never pipe a download into a shell.
 - For any destructive action — delete, overwrite, force-push — ask first.
+- A command that needs approval must be readable in five seconds: one command per
+  call, one purpose, and a plain sentence first saying what it does and why. Never
+  put an approval-needing action inside a loop, pipeline or `&&` chain. A multi-step
+  job is a script file, shown once and approved once. Destructive commands use the
+  literal path, never a variable, so what is approved is what runs.
 - After changes: review the diff line by line (unintended edits, removed safeguards,
   new permissions, dependencies, network calls or logging, deprecated APIs, debug
   code left on). Build. Run tests. List the manual tests still needed. Don't call it
