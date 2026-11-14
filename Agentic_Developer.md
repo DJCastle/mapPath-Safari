@@ -225,8 +225,16 @@ complication, Live Activity.
 - Prefer new commits over amending. One logical change per commit. Commit messages
   explain *why*, not just *what*.
 - Diff a file before staging it when it already shows as modified.
-- Don't commit unless asked — with one exception, the save-point rule: once a build
-  is confirmed working and a section is done, commit and push without asking.
+- Commit as you go, push on topic change — without asking:
+  - Commit after each verified fix: one fix, one commit, only that fix's files.
+    Say so in one line ("Committed: <what>"). Never commit broken or half-done
+    work; on a switch mid-fix, say what's left uncommitted.
+  - Push when the topic changes (another area, section, problem or repo, or Don
+    says "moving on") and at session end: "Pushed — moving on to <topic>." Also
+    push when Don confirms a build and a section is done.
+  - Site repos (Cloudflare Workers sites) push to a work branch, never `main`.
+    Public repos get the personal-info scan before every push. Changes not made
+    in this session are left out and named, not swept in.
 - Before a big refactor, history rewrite, schema or sync change, or destructive git
   operation, create a checkpoint first.
 
